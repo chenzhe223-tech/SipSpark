@@ -1,5 +1,5 @@
 const SITE_ORIGIN='https://chenzhe223-tech.github.io';
-const TEXT_MODEL='@cf/meta/llama-3.1-8b-instruct';
+const TEXT_MODEL='@cf/meta/llama-3.2-3b-instruct';
 const IMAGE_MODEL='@cf/black-forest-labs/flux-1-schnell';
 const counters=new Map();
 const aliasGroups=[
@@ -93,13 +93,17 @@ function parseObject(s){
 function validate(payload,input,mood){
  if(!payload||!Array.isArray(payload.recipes)||payload.recipes.length<3)throw new Error('not enough recipes');
  const allowedGroups=mentionedGroups(input);
+ const recognized=matchedMaterials(input);
+ const inputAlcohols=recognized.filter(item=>alcoholStrength(item.name)!==null);
+ const inputMixers=recognized.filter(item=>!isIce(item.name)&&alcoholStrength(item.name)===null);
+ const inputHasIce=recognized.some(item=>isIce(item.name));
+ const noAlcoholMode=/(无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail)/i.test(String(mood||'')+' '+String(input||''));
  const recipes=payload.recipes.slice(0,3).map((r,i)=>{
   const name=String(r.name||r.chineseName||'').trim().slice(0,36);
   const englishName=String(r.englishName||r.en||'').trim().slice(0,48);
   const description=String(r.description||r.flavor||'').trim().slice(0,240);
   const ingredients=Array.isArray(r.ingredients)?r.ingredients.slice(0,8):[];
-  const modelSteps=Array.isArray(r.steps)?r.steps.slice(0,6).map(step=>String(step).trim().slice(0,200)):[];
-  if(!name||ingredients.length===0||modelSteps.length<2)throw new Error('incomplete recipe');
+  if(!name||ingredients.length===0)throw new Error('incomplete recipe');
   const clean=ingredients.map(it=>{
    const iname=String(it.name||'').trim().slice(0,50);
    const raw=it.amountMl!==undefined?it.amountMl:(it.amount_ml!==undefined?it.amount_ml:it.ml);
@@ -112,10 +116,28 @@ function validate(payload,input,mood){
    const finalAmount=isIce(iname)?'适量':(finalMl!==null?finalMl+' ml':(amount||null));
    return {name:iname,amountMl:finalMl,amount:finalAmount,optional:isIce(iname)?false:Boolean(it.optional),group:group};
   });
+  if(!noAlcoholMode&&inputAlcohols.length&&inputMixers.length){
+   const chosenAlcohol=inputAlcohols[0];
+   const chosenMixer=inputMixers[0];
+   if(!clean.some(it=>alcoholStrength(it.name)!==null)){
+    const strength=alcoholStrength(chosenAlcohol.name)||.12;
+    const amounts=strength>=.25?[20,25,30]:[30,45,60];
+    const amountMl=amounts[i];
+    clean.push({name:chosenAlcohol.name,amountMl:amountMl,amount:amountMl+' ml',optional:false,group:chosenAlcohol.groupId});
+   }
+   if(!clean.some(it=>!isIce(it.name)&&alcoholStrength(it.name)===null&&it.amountMl!==null&&it.amountMl>0)){
+    const amounts=[120,90,60],amountMl=amounts[i];
+    clean.push({name:chosenMixer.name,amountMl:amountMl,amount:amountMl+' ml',optional:false,group:chosenMixer.groupId});
+   }
+   if(inputHasIce&&i<2&&!clean.some(it=>isIce(it.name))){
+    const ice=recognized.find(item=>isIce(item.name));
+    if(ice)clean.push({name:ice.name,amountMl:0,amount:'适量',optional:false,group:ice.groupId});
+   }
+  }
   if(!clean.some(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0))throw new Error('recipe has no liquid');
-  const steps=buildSafeSteps(clean);
   const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
-  if((String(mood||'')+' '+String(input||'')).match(/无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail/i)&&alcoholParts.length)throw new Error('alcohol_not_allowed');
+  if(noAlcoholMode&&alcoholParts.length)throw new Error('alcohol_not_allowed');
+  const steps=buildSafeSteps(clean);
   const liquidParts=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
   const liquidVolume=liquidParts.reduce((sum,it)=>sum+it.amountMl,0);
   const pureAlcohol=alcoholParts.reduce((sum,x)=>sum+(x.item.amountMl===null?0:x.item.amountMl*x.strength),0);
@@ -125,6 +147,7 @@ function validate(payload,input,mood){
  });
  return {recipes:recipes,safetyNote:String(payload.safetyNote||'含酒精饮品请慢饮，不酒驾；未成年人及需要保持警觉时请选择真正的无酒精饮品。').slice(0,240),engine:'workers-ai'};
 }
+
 export default {async fetch(request,env){
  const url=new URL(request.url),origin=request.headers.get('Origin')||'';
  if(request.method==='OPTIONS'){if(origin&&origin!==SITE_ORIGIN)return new Response(null,{status:403});return json({ok:true},200,origin)}
