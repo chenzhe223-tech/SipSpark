@@ -3,7 +3,7 @@ const TEXT_MODEL='@cf/meta/llama-3.2-3b-instruct';
 const IMAGE_MODEL='@cf/black-forest-labs/flux-1-schnell';
 const counters=new Map();
 const aliasGroups=[
-['长相思白葡萄酒','长相思','sauvignon blanc','sauvignon'],['白葡萄酒','white wine'],
+['长相思','长相思白葡萄酒','sauvignon blanc','sauvignon'],['白葡萄酒','white wine'],
 ['红柚金银花果汁','红柚金银花汁','葡萄柚金银花果汁'],
 ['金银花果汁','honeysuckle juice'],['西柚汁','葡萄柚汁','红柚汁','grapefruit juice','pink grapefruit juice'],
 ['红柚','西柚','葡萄柚','grapefruit'],['金银花','金银花花材','honeysuckle flower'],
