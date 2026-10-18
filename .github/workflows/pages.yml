@@ -52,7 +52,6 @@ jobs:
           print('SipSpark AI Worker is reachable')
           PY
       - name: Smoke-test AI recipe generation
-        continue-on-error: true
         timeout-minutes: 2
         run: |
           set +e
