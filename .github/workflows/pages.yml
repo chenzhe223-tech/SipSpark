@@ -81,6 +81,23 @@ jobs:
                       raise SystemExit('AI returned an ingredient outside this smoke-test set: '+name)
           print('AI recipe endpoint returned three ingredient-validated recipes')
           PY
+      - name: One-time AI image endpoint smoke test
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          curl --silent --show-error --max-time 70 -X POST https://sipspark-ai.chenzhe223.workers.dev/api/image -H 'Content-Type: application/json' --data '{"name":"云上留白","description":"红柚果香与长相思白葡萄酒，清爽微醺","ingredients":"红柚金银花果汁、长相思、冰块","mood":"清爽自然"}' -o /tmp/sipspark-image.json
+          python3 - <<'PY'
+          import json, base64
+          with open('/tmp/sipspark-image.json', encoding='utf-8') as f:
+              data=json.load(f)
+          image=data.get('image','')
+          if not isinstance(image,str) or len(image)<1000:
+              raise SystemExit('AI image endpoint returned no usable image: '+str(data.get('error','unknown error')))
+          raw=base64.b64decode(image[:10000] + '===')
+          if data.get('mimeType') not in ('image/jpeg','image/png'):
+              raise SystemExit('Unexpected AI image MIME type: '+str(data.get('mimeType')))
+          print('AI image endpoint returned a non-empty image payload; MIME='+data['mimeType']+', base64 chars='+str(len(image)))
+          PY
       - name: Prepare static site
         run: |
           mkdir -p _site
