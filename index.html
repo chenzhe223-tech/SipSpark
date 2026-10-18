@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#F2EEE6" />
+<meta name="description" content="随调 SipSpark 品牌看板：让灵感发生在手边。品牌理念、视觉识别、品牌色彩与即兴调饮作品。" />
+<title>随调 SipSpark — Brand Board</title>
+<style>
+  :root{
+    --paper:#F2EEE6; --pomelo:#C98778; --sage:#8B9582; --ink:#292D2A;
+    --champagne:#D6C5A7; --sand:#E4D9CB; --muted:#79776F; --line:#D8D0C4;
+    --card:#FAF8F3; --white:#fffdf9; --radius:22px; --shadow:0 18px 50px rgba(43,39,31,.07);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:88px}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  .shell{width:min(1240px,calc(100% - 40px));margin:auto}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(242,238,230,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(216,208,196,.7)}
+  .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand-mini{display:flex;align-items:center;gap:12px;font-weight:650;letter-spacing:.02em}
+  .mark{width:33px;height:33px;border:1px solid var(--pomelo);border-radius:50% 50% 50% 10%;transform:rotate(-45deg);display:grid;place-items:center;color:var(--pomelo);font-size:14px}
+  .mark span{transform:rotate(45deg)}
+  .brand-mini small{display:block;color:var(--muted);font-size:10px;font-weight:500;letter-spacing:.16em;margin-top:-2px}
+  .navlinks{display:flex;gap:24px;color:#6e6d65;font-size:12px;letter-spacing:.04em}
+  .navlinks a:hover{color:var(--pomelo)}
+  .nav-cta{border:1px solid var(--ink);padding:8px 14px;border-radius:99px;font-size:12px;white-space:nowrap;transition:.2s}
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+  .hero{padding:48px 0 30px}
+  .hero-grid{display:grid;grid-template-columns:1fr .95fr;gap:26px;align-items:stretch}
+  .hero-copy{padding:clamp(30px,5.6vw,76px);background:var(--card);border-radius:var(--radius);position:relative;overflow:hidden;min-height:530px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow)}
+  .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--pomelo);font-weight:700}
+  .hero h1{font-size:clamp(48px,7.2vw,88px);line-height:1.03;letter-spacing:-.07em;font-weight:500;margin:25px 0 16px}
+  .hero h1 .cn{letter-spacing:.04em;font-family:"Songti SC","Noto Serif CJK SC",STSong,serif;font-weight:500}
+  .hero h1 .en{display:block;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-style:italic;font-size:.47em;letter-spacing:-.035em;color:var(--pomelo);margin-top:13px}
+  .hero-tagline{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:clamp(21px,2.4vw,29px);letter-spacing:.06em;margin:35px 0 14px}
+  .hero-desc{max-width:410px;color:#6b6a63;font-size:14px;line-height:2}
+  .hero-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:28px;margin-top:28px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+  .hero-art{border-radius:var(--radius);background:linear-gradient(155deg,#e6d8ca 0%,#f0e4d5 43%,#d9b4a5 100%);min-height:530px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .sun{position:absolute;width:320px;height:320px;border-radius:50%;background:rgba(249,231,197,.75);top:10%;right:6%;filter:blur(1px)}
+  .window{position:absolute;width:78%;height:62%;top:8%;right:-7%;border:18px solid rgba(90,87,78,.12);border-radius:48% 48% 35% 35% / 36% 36% 20% 20%;transform:rotate(8deg);box-shadow:inset 0 0 0 2px rgba(255,255,255,.38)}
+  .window:before{content:"";position:absolute;inset:0;background:linear-gradient(165deg,rgba(255,255,255,.55),transparent 38%),linear-gradient(0deg,#c78577 0%,#e6c6b4 35%,#d9e1dd 65%,#f5e9d4 100%);border-radius:inherit}
+  .window:after{content:"";position:absolute;left:-8%;right:-3%;bottom:0;height:32%;background:linear-gradient(165deg,transparent 25%,rgba(166,141,120,.25) 26%,rgba(255,255,255,.05) 42%,rgba(119,137,132,.22) 43%);border-radius:50%}
+  .art-label{position:absolute;top:28px;left:28px;font-size:10px;letter-spacing:.19em;color:rgba(41,45,42,.7)}
+  .glass-scene{position:relative;z-index:2;width:min(74%,340px);margin-top:80px;filter:drop-shadow(0 25px 24px rgba(75,53,45,.17));}
+  .art-caption{position:absolute;bottom:28px;left:30px;right:30px;display:flex;justify-content:space-between;align-items:end;gap:14px;color:#514d46}
+  .art-caption strong{font-family:Georgia,serif;font-size:22px;font-weight:400;font-style:italic;display:block}
+  .art-caption span{font-size:10px;letter-spacing:.11em;text-transform:uppercase}
+  .section{padding:58px 0}
+  .section-head{display:flex;justify-content:space-between;align-items:end;gap:25px;margin-bottom:28px}
+  .section-head h2{font-family:"Songti SC","Noto Serif CJK SC",serif;font-weight:500;font-size:clamp(28px,4vw,43px);letter-spacing:.025em;margin:6px 0 0;line-height:1.25}
+  .section-head p{max-width:440px;margin:0;color:var(--muted);font-size:13px;line-height:1.9}
+  .section-number{font-size:10px;color:var(--pomelo);letter-spacing:.18em;font-weight:700}
+  .belief-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .belief{background:var(--card);border:1px solid rgba(216,208,196,.65);border-radius:var(--radius);padding:30px;min-height:208px;position:relative;overflow:hidden}
+  .belief .n{font:italic 33px Georgia,serif;color:var(--pomelo);opacity:.8}
+  .belief h3{font-size:19px;font-weight:550;margin:20px 0 8px}
+  .belief p{font-size:13px;color:var(--muted);line-height:1.9;margin:0;max-width:430px}
+  .manifesto{padding:60px clamp(24px,6vw,82px);background:var(--ink);color:var(--paper);border-radius:var(--radius);position:relative;overflow:hidden}
+  .manifesto:after{content:"✳︎";position:absolute;right:4%;top:-60px;font-size:270px;line-height:1;color:rgba(201,135,120,.11);font-family:Georgia,serif;pointer-events:none}
+  .manifesto .eyebrow{color:#dca99b}
+  .manifesto blockquote{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:clamp(25px,4vw,43px);line-height:1.55;letter-spacing:.05em;max-width:830px;margin:22px 0 20px;position:relative;z-index:1}
+  .manifesto p{font-size:13px;max-width:640px;color:#c7c5bc;line-height:2;margin:0}
+  .manifesto .sign{margin-top:27px;font:italic 18px Georgia,serif;color:#d9a99c;letter-spacing:.02em}
+  .palette-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .swatch{background:var(--card);border:1px solid rgba(216,208,196,.7);padding:10px;border-radius:16px;min-width:0}
+  .swatch-color{height:130px;border-radius:10px;position:relative;overflow:hidden}
+  .swatch-color button{position:absolute;right:9px;bottom:9px;border:1px solid rgba(255,255,255,.55);background:rgba(255,255,255,.55);backdrop-filter:blur(8px);border-radius:99px;padding:5px 9px;font-size:10px;color:#363832}
+  .swatch-meta{display:flex;align-items:start;justify-content:space-between;gap:8px;padding:13px 4px 3px}
+  .swatch-meta strong{font-size:13px;font-weight:600;display:block}
+  .swatch-meta small{color:var(--muted);font-size:10px;letter-spacing:.04em;display:block;margin-top:3px}
+  .swatch-meaning{padding:0 4px 7px;color:var(--muted);font-size:11px}
+  .color-note{display:flex;gap:12px;align-items:start;background:#e7dfd3;padding:17px 20px;border-radius:14px;margin-top:18px;color:#5f5a51;font-size:12px;line-height:1.9}
+  .color-note .dot{flex:0 0 9px;height:9px;border-radius:50%;background:var(--pomelo);margin-top:7px}
+  .identity-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:18px}
+  .logo-panel,.rules-panel{border-radius:var(--radius);background:var(--card);border:1px solid rgba(216,208,196,.7);padding:clamp(22px,3vw,36px)}
+  .logo-stage{min-height:280px;background:var(--paper);border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;position:relative;overflow:hidden}
+  .logo-stage .bigmark{height:74px;width:74px;border:1.4px solid var(--pomelo);border-radius:50% 50% 50% 10%;transform:rotate(-45deg);display:grid;place-items:center;color:var(--pomelo);font-size:28px}
+  .logo-stage .bigmark span{transform:rotate(45deg)}
+  .logo-stage .logotype{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:42px;letter-spacing:.12em}
+  .logo-stage .wordmark{font:italic 17px Georgia,serif;color:var(--pomelo);letter-spacing:.04em}
+  .logo-stage .corner{position:absolute;left:14px;top:13px;color:var(--muted);font-size:9px;letter-spacing:.15em}
+  .panel-title{font-size:15px;margin:0 0 12px}
+  .panel-copy{font-size:12px;color:var(--muted);line-height:2;margin:0}
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  .rule{padding-top:13px;border-top:1px solid var(--line)}
+  .rule strong{font-size:12px;display:block;margin-bottom:6px}
+  .rule span{font-size:11px;color:var(--muted);line-height:1.8;display:block}
+  .type-spec{border-top:1px solid var(--line);padding-top:18px;margin-top:20px;display:flex;justify-content:space-between;gap:20px;align-items:end}
+  .type-cn{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:26px}
+  .type-en{font:italic 22px Georgia,serif;color:var(--pomelo)}
+  .recipes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .recipe-card{background:var(--card);border:1px solid rgba(216,208,196,.7);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .22s,box-shadow .22s}
+  .recipe-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .drink-art{height:190px;position:relative;overflow:hidden;display:grid;place-items:center}
+  .drink-art:before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.28);top:-65px;right:-35px}
+  .drink-art:after{content:"";position:absolute;inset:auto 0 0;height:42%;background:linear-gradient(0deg,rgba(45,42,36,.12),transparent)}
+  .drink-art svg{width:155px;height:175px;position:relative;z-index:1;filter:drop-shadow(0 12px 13px rgba(50,40,30,.13))}
+  .recipe-body{padding:19px 19px 17px;display:flex;flex-direction:column;flex:1}
+  .recipe-top{display:flex;justify-content:space-between;align-items:start;gap:10px}
+  .recipe-id{color:var(--pomelo);font-size:9px;letter-spacing:.16em;font-weight:700}
+  .recipe-name{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:22px;font-weight:500;margin:6px 0 0;line-height:1.3}
+  .recipe-en{font:italic 13px Georgia,serif;color:var(--muted);margin-top:4px}
+  .pill{font-size:9px;border:1px solid var(--line);padding:4px 8px;border-radius:99px;color:#747066;white-space:nowrap}
+  .recipe-desc{font-size:12px;color:#69685f;line-height:1.85;margin:15px 0 13px;min-height:45px}
+  .ingredients{font-size:11px;color:#4f5049;line-height:1.9;border-top:1px solid var(--line);padding-top:11px;margin-top:auto}
+  .ingredients strong{font-size:10px;letter-spacing:.05em;color:var(--muted);display:block;margin-bottom:4px}
+  .recipe-actions{display:flex;gap:8px;margin-top:14px}
+  .btn-small{font-size:10px;border:1px solid var(--line);padding:8px 10px;border-radius:99px;background:transparent;color:#55564f;transition:.2s}
+  .btn-small:hover,.btn-small.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .recipe-toolbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px}
+  .filters{display:flex;flex-wrap:wrap;gap:7px}
+  .filter{border:1px solid var(--line);padding:7px 12px;border-radius:99px;background:transparent;color:var(--muted);font-size:11px}
+  .filter.active,.filter:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .recipe-count{font-size:11px;color:var(--muted);white-space:nowrap}
+  .guidelines{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .guideline{padding:23px;background:var(--card);border-radius:16px;border:1px solid rgba(216,208,196,.7)}
+  .guideline .symbol{font:italic 26px Georgia,serif;color:var(--pomelo)}
+  .guideline h3{font-size:15px;margin:12px 0 8px}
+  .guideline p{font-size:12px;color:var(--muted);line-height:1.9;margin:0}
+  .launch{display:grid;grid-template-columns:.78fr 1.22fr;gap:20px}
+  .launch-visual{background:linear-gradient(150deg,#dcc9b7,#f1e7d9 50%,#ca9383);border-radius:var(--radius);padding:35px;min-height:390px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+  .launch-visual .large-quote{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:28px;line-height:1.7;position:relative;z-index:1}
+  .launch-visual .sticker{font:italic 18px Georgia,serif;align-self:end;transform:rotate(-7deg);border-bottom:1px solid var(--ink);padding-bottom:6px}
+  .launch-copy{background:var(--card);border:1px solid rgba(216,208,196,.7);border-radius:var(--radius);padding:clamp(25px,4vw,45px)}
+  .launch-copy h3{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:25px;font-weight:500;margin:7px 0 20px}
+  .launch-copy p{font-size:13px;color:#69685f;line-height:2.05;margin:0 0 14px}
+  .launch-copy .final-line{color:var(--ink);font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:21px;margin-top:23px}
+  .launch-actions{display:flex;gap:9px;margin-top:25px;flex-wrap:wrap}
+  .btn{padding:10px 15px;border-radius:99px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);font-size:11px}
+  .btn.secondary{color:var(--ink);background:transparent}
+  footer{padding:35px 0 48px}
+  .footer-row{display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding-top:22px;color:var(--muted);font-size:10px;letter-spacing:.06em}
+  .footer-logo{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:20px;letter-spacing:.1em;color:var(--ink)}
+  .toast{position:fixed;left:50%;bottom:25px;transform:translate(-50%,20px);background:var(--ink);color:#fffdf9;padding:10px 16px;border-radius:99px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;z-index:100;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .small-note{font-size:10px;color:var(--muted);line-height:1.8}
+  @media(max-width:900px){.hero-grid,.identity-grid,.launch{grid-template-columns:1fr}.hero-copy,.hero-art{min-height:440px}.hero-art{min-height:490px}.recipes{grid-template-columns:repeat(2,1fr)}.palette-grid{grid-template-columns:repeat(2,1fr)}.guidelines{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}.navlinks{gap:14px}}
+  @media(max-width:600px){.shell{width:min(100% - 24px,1240px)}.nav{height:62px}.navlinks{display:none}.hero{padding-top:14px}.hero-grid{gap:12px}.hero-copy{padding:27px;min-height:475px}.hero-art{min-height:430px}.glass-scene{width:78%;margin-top:50px}.section{padding:39px 0}.belief-grid{grid-template-columns:1fr}.belief{min-height:185px;padding:24px}.manifesto{padding:34px 25px}.palette-grid{grid-template-columns:repeat(2,1fr);gap:9px}.swatch{padding:7px}.swatch-color{height:92px}.swatch-meta{padding:10px 3px 3px;display:block}.swatch-meaning{padding:0 3px 5px}.recipes{grid-template-columns:1fr}.drink-art{height:210px}.recipe-desc{min-height:0}.recipe-toolbar{align-items:start;flex-direction:column}.launch-visual{min-height:310px;padding:25px}.launch-copy{padding:25px}.footer-row{align-items:start;flex-direction:column}.rules{gap:12px}.type-spec{align-items:start;flex-direction:column}}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="shell nav">
+    <a class="brand-mini" href="#top" aria-label="随调 SipSpark 首页"><span class="mark"><span>✳︎</span></span><span>随调 SipSpark<small>A SMALL SIP. A QUIET SPARK.</small></span></a>
+    <nav class="navlinks" aria-label="主导航"><a href="#story">品牌理念</a><a href="#palette">品牌色彩</a><a href="#identity">视觉识别</a><a href="#recipes">即兴作品</a></nav>
+    <a class="nav-cta" href="app.html">开始随调 ↗</a>
+  </div>
+</header>
+<main id="top">
+  <section class="hero shell">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div>
+          <div class="eyebrow">An everyday creative ritual</div>
+          <h1><span class="cn">随调</span><span class="en">SipSpark</span></h1>
+          <div class="hero-tagline">让灵感，发生在手边。</div>
+          <p class="hero-desc">一杯红柚金银花果汁，一点长相思，几块冰。一次没有预设的组合，让寻常之物有了新的表达。随调从这样的瞬间开始。</p>
+        </div>
+        <div class="hero-foot"><span>随心一调，自有灵感。</span><span>BRAND BOARD · 001</span></div>
+      </div>
+      <div class="hero-art" aria-label="云上留白鸡尾酒的抽象视觉插画">
+        <div class="sun"></div><div class="window"></div><div class="art-label">THE FIRST SPARK · IN FLIGHT</div>
+        <svg class="glass-scene" viewBox="0 0 360 410" role="img" aria-label="红柚色鸡尾酒与冰块插画">
+          <defs>
+            <linearGradient id="drink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9a395" stop-opacity=".88"/><stop offset=".55" stop-color="#c97668" stop-opacity=".93"/><stop offset="1" stop-color="#b7665e" stop-opacity=".86"/></linearGradient>
+            <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".58"/><stop offset=".22" stop-color="#fff" stop-opacity=".12"/><stop offset=".75" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity=".44"/></linearGradient>
+            <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#f6e7dc" stop-opacity=".22"/></linearGradient>
+          </defs>
+          <ellipse cx="180" cy="350" rx="110" ry="17" fill="#6b5145" opacity=".12"/>
+          <path d="M72 92 Q180 115 288 92 L267 298 Q260 335 228 338 L132 338 Q100 335 93 298 Z" fill="url(#glass)" stroke="#fffaf1" stroke-opacity=".82" stroke-width="3"/>
+          <path d="M81 139 Q180 155 279 139 L263 294 Q257 321 230 324 L130 324 Q105 321 98 294 Z" fill="url(#drink)"/>
+          <path d="M82 139 Q180 155 279 139" fill="none" stroke="#ffe7db" stroke-width="3" stroke-opacity=".9"/>
+          <g fill="url(#ice)" stroke="#fff9f0" stroke-opacity=".8" stroke-width="2">
+            <path d="M113 112 L151 101 L171 128 L146 158 L115 145 Z"/><path d="M184 112 L224 106 L243 135 L218 159 L187 148 Z"/><path d="M148 158 L178 145 L201 167 L185 192 L153 188 Z"/>
+          </g>
+          <g transform="translate(222 194) rotate(-12)">
+            <circle r="39" fill="#f7c0a2" stroke="#fff1dd" stroke-width="5"/><circle r="29" fill="#ee9b83"/><circle r="21" fill="#f9c8a4"/>
+            <g stroke="#f9e7cf" stroke-width="3"><path d="M0 0 L0 -28 M0 0 L24 -14 M0 0 L24 14 M0 0 L0 28 M0 0 L-24 14 M0 0 L-24 -14"/></g><circle r="5" fill="#f9e7cf"/>
+          </g>
+          <path d="M108 167 Q101 231 117 278" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-opacity=".53"/>
+          <path d="M252 169 Q259 214 246 272" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-opacity=".48"/>
+          <g fill="#fff4e6" opacity=".72"><circle cx="137" cy="210" r="3"/><circle cx="163" cy="237" r="2"/><circle cx="203" cy="270" r="3"/><circle cx="235" cy="229" r="2"/><circle cx="141" cy="284" r="2"/></g>
+        </svg>
+        <div class="art-caption"><div><strong>Cloudline</strong><span>Pomelo · Floral · Sauvignon Blanc</span></div><span>01 / 06</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell" id="story">
+    <div class="section-head"><div><div class="section-number">01 / THE IDEA</div><h2>创造，不必从计划开始。</h2></div><p>随调不是一款教人遵循配方的调酒工具，而是一种轻盈的生活创作方式：从已有的材料出发，让 AI 帮灵感找到落点。</p></div>
+    <div class="belief-grid">
+      <article class="belief"><div class="n">01</div><h3>即兴，而非随便</h3><p>不必等待万事俱备。尊重味道与细节，在有限的条件里，认真创造一点新的可能。</p></article>
+      <article class="belief"><div class="n">02</div><h3>日常，就是素材</h3><p>冰箱里的果汁、旅行中的茶、朋友带来的水果，都可能是下一杯饮品的起点。不必为了创意先添置一整套装备。</p></article>
+      <article class="belief"><div class="n">03</div><h3>AI 是灵感的放大器</h3><p>你提供材料、偏好与心情；AI 帮你探索组合、比例与做法。科技退后一步，让真实的感受走到前面。</p></article>
+      <article class="belief"><div class="n">04</div><h3>高级，但不炫耀</h3><p>不以价格、酒款和专业术语定义品位。恰到好处的搭配、清晰的表达与舒适的体验，本身就足够动人。</p></article>
+    </div>
+  </section>
+
+  <section class="section shell" aria-label="品牌宣言">
+    <div class="manifesto"><div class="eyebrow">Our point of view</div><blockquote>不必刻意，不必完美。<br>从手边开始，让灵感自然发生。</blockquote><p>我们不追求每一杯都令人惊艳，也不要求每一次创意都与众不同。重要的是，在熟悉的生活里，仍然愿意尝试一点新鲜。</p><div class="sign">A small sip. A quiet spark.</div></div>
+  </section>
+
+  <section class="section shell" id="palette">
+    <div class="section-head"><div><div class="section-number">02 / COLOR SYSTEM</div><h2>颜色，来自真实的味道。</h2></div><p>温暖的纸感底色，低饱和的柚皮粉与草本绿，少量深墨色作平衡。把鲜活的颜色留给饮品本身。</p></div>
+    <div class="palette-grid">
+      <article class="swatch"><div class="swatch-color" style="background:#F2EEE6;border:1px solid #e4ddd1"><button data-copy="#F2EEE6">复制色值</button></div><div class="swatch-meta"><div><strong>雾纸白</strong><small>Mist Paper</small></div><small>#F2EEE6</small></div><div class="swatch-meaning">主背景 · 安静、温暖、留白</div></article>
+      <article class="swatch"><div class="swatch-color" style="background:#C98778"><button data-copy="#C98778">复制色值</button></div><div class="swatch-meta"><div><strong>柚皮粉</strong><small>Pomelo Blush</small></div><small>#C98778</small></div><div class="swatch-meaning">品牌强调色 · 柔和、有温度</div></article>
+      <article class="swatch"><div class="swatch-color" style="background:#8B9582"><button data-copy="#8B9582">复制色值</button></div><div class="swatch-meta"><div><strong>鼠尾草绿</strong><small>Sage</small></div><small>#8B9582</small></div><div class="swatch-meaning">草本与茶饮 · 自然、清新</div></article>
+      <article class="swatch"><div class="swatch-color" style="background:#292D2A"><button data-copy="#292D2A">复制色值</button></div><div class="swatch-meta"><div><strong>墨岩黑</strong><small>Ink Stone</small></div><small>#292D2A</small></div><div class="swatch-meaning">正文与标题 · 稳定、克制</div></article>
+      <article class="swatch"><div class="swatch-color" style="background:#D6C5A7"><button data-copy="#D6C5A7">复制色值</button></div><div class="swatch-meta"><div><strong>浅香槟</strong><small>Pale Champagne</small></div><small>#D6C5A7</small></div><div class="swatch-meaning">辅助细节 · 微光、质感</div></article>
+      <article class="swatch"><div class="swatch-color" style="background:#E4D9CB"><button data-copy="#E4D9CB">复制色值</button></div><div class="swatch-meta"><div><strong>沙岩米</strong><small>Sandstone</small></div><small>#E4D9CB</small></div><div class="swatch-meaning">卡片与辅助背景 · 自然、平静</div></article>
+    </div>
+    <div class="color-note"><span class="dot"></span><div><strong>用色原则：</strong>大多数页面只使用雾纸白、墨岩黑与一种强调色。建议主背景约占 55%，沙岩米 20%，墨岩黑 15%，柚皮粉 7%，鼠尾草绿与浅香槟合计约 3%。这是视觉起始比例，后续可依据真实界面测试调整。</div></div>
+  </section>
+
+  <section class="section shell" id="identity">
+    <div class="section-head"><div><div class="section-number">03 / VISUAL IDENTITY</div><h2>一滴液体，一点微光。</h2></div><p>视觉不需要大声介绍自己。它应该像随调的味道一样：自然、轻盈，有自己的细节，但不刻意。</p></div>
+    <div class="identity-grid">
+      <div class="logo-panel"><h3 class="panel-title">标志方向 / Logo Direction</h3><div class="logo-stage"><span class="corner">CONCEPT A · QUIET SPARK</span><div class="bigmark"><span>✳︎</span></div><div class="logotype">随调</div><div class="wordmark">SipSpark</div></div><p class="panel-copy" style="margin-top:15px">图形概念以液滴轮廓与微小星芒结合，象征材料相遇时产生的灵感。此处为方向示意，正式 Logo 仍需进行字形、比例与小尺寸识别测试。</p></div>
+      <div class="rules-panel"><h3 class="panel-title">视觉使用原则 / Art Direction</h3>
+        <div class="rules">
+          <div class="rule"><strong>01 · 自然光</strong><span>窗边光影、透明玻璃、真实冰块与果皮。保留材料本身的质感。</span></div>
+          <div class="rule"><strong>02 · 克制构图</strong><span>一杯饮品，一个主角。留白比装饰更重要，不堆叠元素。</span></div>
+          <div class="rule"><strong>03 · 诚实质感</strong><span>不追求过度完美的商业摆拍，允许微小的不对称和真实水珠。</span></div>
+          <div class="rule"><strong>04 · 轻量交互</strong><span>短提示、大图、简单步骤。先让用户产生灵感，再展示必要信息。</span></div>
+        </div>
+        <div class="type-spec"><div><div class="small-note">CHINESE TYPE / 中文标题</div><div class="type-cn">随心而调，自有灵感。</div></div><div><div class="small-note">ENGLISH TYPE / 英文标语</div><div class="type-en">A quiet spark.</div></div></div>
+        <p class="panel-copy" style="margin-top:16px">字体建议：中文标题采用现代宋体或克制的衬线风格，正文使用清晰的无衬线字体；英文标题可使用优雅且易读的衬线字体。应优先保证移动端可读性与跨系统兼容。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell" id="recipes">
+    <div class="section-head"><div><div class="section-number">04 / SIGNATURE MIXES</div><h2>从手边，调出一点不一样。</h2></div><p>六款首发作品概念。不是不可更改的标准答案，而是由现有材料出发、可以根据个人口味继续调整的创作起点。</p></div>
+    <div class="recipe-toolbar"><div class="filters" role="group" aria-label="筛选饮品"><button class="filter active" data-filter="all">全部作品</button><button class="filter" data-filter="wine">葡萄酒系</button><button class="filter" data-filter="spirit">烈酒系</button><button class="filter" data-filter="zero">无酒精</button></div><div class="recipe-count" id="recipe-count">06 / SIGNATURE RECIPES</div></div>
+    <div class="recipes">
+      <article class="recipe-card" data-category="wine" data-name="云上留白 Cloudline" data-ingredients="红柚金银花果汁 60 ml；长相思白葡萄酒 90 ml；冰块 100–150 g；葡萄柚皮少许（可选）。做法：杯中加满冰块，加入果汁，再缓缓倒入长相思，轻搅 5–8 秒，用葡萄柚皮轻拧出香气。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#ead4c8,#c98778)"><svg viewBox="0 0 160 180" aria-label="云上留白饮品插画"><path d="M24 26 Q80 39 136 26 L123 130 Q119 149 100 151 L60 151 Q41 149 37 130 Z" fill="#fff" fill-opacity=".24" stroke="#fffaf2" stroke-opacity=".9" stroke-width="2.5"/><path d="M30 51 Q80 62 130 51 L119 128 Q116 142 99 143 L61 143 Q45 142 41 128 Z" fill="#C8786D" fill-opacity=".88"/><path d="M32 52 Q80 63 129 52" fill="none" stroke="#ffe8dd" stroke-width="2"/><g fill="#fff7ed" fill-opacity=".8" stroke="#fff" stroke-width="1.3"><path d="M45 37 L64 32 L76 47 L62 62 L46 55Z"/><path d="M83 37 L105 34 L115 50 L99 62 L83 55Z"/></g><circle cx="101" cy="83" r="19" fill="#f4c2a2" stroke="#ffe6d1" stroke-width="3"/><circle cx="101" cy="83" r="13" fill="#db8976"/><path d="M101 70 V96 M88 83 H114 M92 74 L110 92 M110 74 L92 92" stroke="#ffe6d1" stroke-width="1.4"/><path d="M42 66 Q40 94 47 121" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".7"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 001</div><h3 class="recipe-name">云上留白</h3><div class="recipe-en">Cloudline</div></div><span class="pill">品牌原点</span></div><p class="recipe-desc">红柚先行，花香留在中段，长相思带来清爽的酸度与收尾。来自一次飞行中的偶然搭配。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>红柚金银花果汁 60 ml<br>长相思白葡萄酒 90 ml<br>冰块 100–150 g · 柚皮可选</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+      <article class="recipe-card" data-category="wine" data-name="青雾 Green Haze" data-ingredients="长相思白葡萄酒 75 ml；苏打水 45 ml；青瓜 3–4 薄片；青柠汁 5–8 ml；冰块。做法：轻压青瓜释放香气，加入冰块、葡萄酒与青柠汁，最后加入苏打水，轻搅一次。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#e4e8da,#9faa91)"><svg viewBox="0 0 160 180"><path d="M34 24 H126 L118 151 Q80 161 42 151Z" fill="#fff" fill-opacity=".25" stroke="#fff" stroke-opacity=".8" stroke-width="2.5"/><path d="M40 62 H120 L114 145 Q80 154 46 145Z" fill="#a3b69d" fill-opacity=".72"/><g fill="#fff" fill-opacity=".65" stroke="#fff" stroke-width="1.4"><path d="M48 35 L69 31 L78 49 L64 64 L48 55Z"/><path d="M83 35 L105 30 L115 48 L100 63 L83 54Z"/></g><path d="M55 81 Q76 58 96 83 Q79 107 55 81Z" fill="#829a75" stroke="#f5f6e9" stroke-width="2"/><path d="M56 82 Q77 82 95 83" fill="none" stroke="#dce5ce" stroke-width="1.5"/><path d="M48 69 Q46 102 53 128" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".65"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 002</div><h3 class="recipe-name">青雾</h3><div class="recipe-en">Green Haze</div></div><span class="pill">清爽草本</span></div><p class="recipe-desc">青瓜的清新、青柠的微酸与葡萄酒的青草和柑橘气息彼此呼应，轻盈而干净。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>长相思 75 ml · 苏打水 45 ml<br>青瓜 3–4 薄片 · 青柠汁 5–8 ml<br>冰块适量</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+      <article class="recipe-card" data-category="wine" data-name="桃色时刻 Peach Hour" data-ingredients="无酒精白桃汁或白桃果泥 40 ml；干型起泡葡萄酒 100 ml；柠檬汁 3–5 ml（可选）；少量冰块（可选）。做法：白桃汁与柠檬汁轻轻混匀，再缓慢加入冰镇起泡酒，轻轻拌匀。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#f1e1d0,#d6aa8e)"><svg viewBox="0 0 160 180"><path d="M38 26 H122 L114 83 Q107 104 91 111 L91 143 H106 V153 H54 V143 H69 V111 Q53 104 46 83Z" fill="#fff" fill-opacity=".23" stroke="#fff" stroke-opacity=".85" stroke-width="2.5"/><path d="M46 61 H114 Q107 91 90 102 H70 Q53 91 46 61Z" fill="#dfaa83" fill-opacity=".83"/><g fill="#fff7e5" fill-opacity=".75"><circle cx="64" cy="70" r="2.4"/><circle cx="92" cy="77" r="2"/><circle cx="76" cy="88" r="2.6"/><circle cx="99" cy="65" r="1.7"/><circle cx="57" cy="82" r="1.4"/></g><path d="M52 34 Q49 65 57 83" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".65"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 003</div><h3 class="recipe-name">桃色时刻</h3><div class="recipe-en">Peach Hour</div></div><span class="pill">轻柔气泡</span></div><p class="recipe-desc">柔和桃香与干型起泡酒的细腻气泡相遇，果香饱满，但不必甜腻。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>无酒精白桃汁 40 ml<br>干型起泡葡萄酒 100 ml<br>柠檬汁 3–5 ml，可选</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+      <article class="recipe-card" data-category="spirit" data-name="柚影 Citrus Shade" data-ingredients="金酒 30 ml；红柚汁 45 ml；汤力水 60 ml；青柠汁 5 ml（可选）；葡萄柚皮与冰块。做法：杯中加冰，加入金酒、红柚汁与青柠汁，轻轻混合，最后加入汤力水，以柚皮收尾。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#e8d4bc,#c8a37b)"><svg viewBox="0 0 160 180"><path d="M42 21 H118 L112 154 H48Z" fill="#fff" fill-opacity=".2" stroke="#fff" stroke-opacity=".86" stroke-width="2.5"/><path d="M46 71 H114 L110 148 H50Z" fill="#d8aa68" fill-opacity=".82"/><g fill="#fff" fill-opacity=".65" stroke="#fff" stroke-width="1.2"><path d="M51 34 L72 29 L80 46 L66 60 L52 53Z"/><path d="M84 35 L103 31 L111 48 L99 61 L84 54Z"/></g><circle cx="88" cy="90" r="19" fill="#e5bc82" stroke="#fff0d5" stroke-width="3"/><circle cx="88" cy="90" r="13" fill="#c98e50"/><path d="M88 77 V103 M75 90 H101 M79 81 L97 99 M97 81 L79 99" stroke="#fff0d5" stroke-width="1.4"/><path d="M52 68 Q49 106 56 131" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".6"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 004</div><h3 class="recipe-name">柚影</h3><div class="recipe-en">Citrus Shade</div></div><span class="pill">微苦柑橘</span></div><p class="recipe-desc">柑橘的清亮与汤力水特有的微苦相遇，层次鲜明，余味干净。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>金酒 30 ml · 红柚汁 45 ml<br>汤力水 60 ml · 青柠汁 5 ml，可选<br>冰块与柚皮适量</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+      <article class="recipe-card" data-category="spirit" data-name="茶序 Tea Interval" data-ingredients="冷泡乌龙茶 60 ml；金酒 25 ml；柠檬汁 8 ml；糖浆 3–5 ml（可选）；苏打水 45 ml。做法：加冰后倒入乌龙茶、金酒与柠檬汁，按茶的涩度加入少量糖浆，再加苏打水。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#e4dfce,#9e9c80)"><svg viewBox="0 0 160 180"><path d="M24 26 Q80 36 136 26 L126 139 Q122 153 105 155 H55 Q38 153 34 139Z" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-opacity=".8" stroke-width="2.5"/><path d="M31 62 Q80 72 129 62 L122 136 Q119 147 103 148 H57 Q42 147 39 136Z" fill="#9d8055" fill-opacity=".82"/><g fill="#fff" fill-opacity=".55" stroke="#fff" stroke-width="1.2"><path d="M40 39 L61 34 L72 49 L59 65 L42 57Z"/><path d="M83 39 L104 34 L115 50 L99 65 L83 56Z"/></g><path d="M55 89 Q75 66 100 89 Q79 110 55 89Z" fill="#667658" stroke="#e8e7d5" stroke-width="2"/><path d="M56 89 Q76 88 99 89" stroke="#e8e7d5" stroke-width="1.5" fill="none"/><path d="M40 72 Q38 102 45 130" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".55"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 005</div><h3 class="recipe-name">茶序</h3><div class="recipe-en">Tea Interval</div></div><span class="pill">茶香草本</span></div><p class="recipe-desc">乌龙的焙火香与金酒的草本气息交叠，柠檬带来清晰的收尾。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>冷泡乌龙茶 60 ml · 金酒 25 ml<br>柠檬汁 8 ml · 苏打水 45 ml<br>糖浆 3–5 ml，可选</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+      <article class="recipe-card" data-category="zero" data-name="无声花园 Quiet Garden" data-ingredients="红柚汁 45 ml；冷泡茉莉花茶 60 ml；苏打水 60 ml；柠檬汁 3–5 ml（可选）；冰块。做法：杯中加冰，倒入红柚汁与冷泡茉莉花茶轻轻混合，再加苏打水。">
+        <div class="drink-art" style="background:linear-gradient(135deg,#e8e6d8,#b5bda2)"><svg viewBox="0 0 160 180"><path d="M25 29 Q80 39 135 29 L125 138 Q122 153 104 155 H56 Q38 153 35 138Z" fill="#fff" fill-opacity=".24" stroke="#fff" stroke-opacity=".86" stroke-width="2.5"/><path d="M31 74 Q80 84 129 74 L122 136 Q119 147 103 148 H57 Q42 147 39 136Z" fill="#c8b78a" fill-opacity=".74"/><g fill="#fff" fill-opacity=".6" stroke="#fff" stroke-width="1.2"><path d="M40 41 L61 35 L71 51 L58 65 L42 58Z"/><path d="M83 40 L104 35 L114 51 L99 65 L83 57Z"/></g><path d="M61 86 Q45 67 36 87 Q48 104 61 86Z" fill="#7f9676" stroke="#ecf0df" stroke-width="1.5"/><path d="M62 86 Q76 63 89 82 Q79 103 62 86Z" fill="#91a489" stroke="#ecf0df" stroke-width="1.5"/><path d="M62 86 L74 109" stroke="#ecf0df" stroke-width="1.5"/><path d="M41 78 Q39 106 46 130" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-opacity=".65"/></svg></div>
+        <div class="recipe-body"><div class="recipe-top"><div><div class="recipe-id">SIPSPARK · 006</div><h3 class="recipe-name">无声花园</h3><div class="recipe-en">Quiet Garden</div></div><span class="pill">0% 酒精</span></div><p class="recipe-desc">红柚的微苦、茉莉的花香与气泡的清爽形成平衡。无需酒精，也可以很有层次。</p><div class="ingredients"><strong>INGREDIENTS / 配方</strong>红柚汁 45 ml · 冷泡茉莉花茶 60 ml<br>苏打水 60 ml · 柠檬汁 3–5 ml，可选<br>冰块适量</div><div class="recipe-actions"><button class="btn-small primary copy-recipe">复制配方</button><button class="btn-small copy-name">复制作品名</button></div></div>
+      </article>
+    </div>
+    <p class="small-note" style="margin-top:18px">配方为创作起点，可根据果汁含糖量、酸度及个人口味调整。饮酒请适量；不要酒后驾驶。饮用场景须遵守当地规定及航空公司要求。长相思和起泡葡萄酒含酒精，无法视作无酒精饮品。</p>
+  </section>
+
+  <section class="section shell">
+    <div class="section-head"><div><div class="section-number">05 / PRODUCT PRINCIPLES</div><h2>把复杂留给系统，把轻松留给人。</h2></div><p>随调的产品体验，不应该让人先学会调酒。它应该让每个人都能轻松地开始，并愿意把自己的创作留下来。</p></div>
+    <div class="guidelines">
+      <article class="guideline"><div class="symbol">01</div><h3>从现有材料开始</h3><p>用户先告诉 AI 手边有什么。优先给出真实可做的组合，而不是不断要求购买新材料。</p></article>
+      <article class="guideline"><div class="symbol">02</div><h3>少而精的灵感</h3><p>每次推荐 3 款即可，风味有差异、做法说得清。给出名称、比例、步骤与可调整建议。</p></article>
+      <article class="guideline"><div class="symbol">03</div><h3>把即兴留下来</h3><p>允许用户命名、收藏、记录场景与心情。久而久之，每个人都能拥有自己的调饮作品集。</p></article>
+    </div>
+  </section>
+
+  <section class="section shell" id="launch">
+    <div class="section-head"><div><div class="section-number">06 / LAUNCH MANIFESTO</div><h2>一杯开始，一点新意。</h2></div><p>品牌首发不是宣告一种宏大的改变，而是邀请人们从一个很小的创意开始。</p></div>
+    <div class="launch">
+      <div class="launch-visual"><div class="eyebrow" style="color:#6d5f55">SIPSPARK / 001</div><div class="large-quote">生活的灵感，<br>有时只差一次<br>随手的尝试。</div><div class="sticker">Mix what you have.</div></div>
+      <div class="launch-copy"><div class="eyebrow">A small sip. A quiet spark.</div><h3>随心一调，自有灵感。</h3><p>飞机上，一杯红柚金银花果汁，一点长相思，几块冰。</p><p>原本各自独立的味道，因为一次随手的尝试，成了意料之外的搭配。</p><p>那一刻，我突然觉得，生活里的很多灵感，其实一直都在。我们只是习惯了等待准备充分，等待一个合适的时机。</p><p>而有些美好，只需要从手边开始。</p><p>于是，有了随调 SipSpark。</p><p>用 AI 探索手边已有的材料，用一点好奇心创造属于自己的味道。不必复杂，不必刻意，也不必每次都与众不同。</p><div class="final-line">让即兴有一点章法，<br>让日常多一点新意。</div><div class="launch-actions"><button class="btn" id="copy-manifesto">复制首发文案 ↗</button><button class="btn secondary" onclick="window.print()">打印 / 导出 PDF</button></div></div>
+    </div>
+  </section>
+</main>
+<footer class="shell"><div class="footer-row"><div><div class="footer-logo">随调 SipSpark</div><div>A small sip. A quiet spark.</div></div><div>BRAND CONCEPT · VERSION 01.0</div><div>让灵感，发生在手边。</div></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+<script>
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg='已复制到剪贴板'){
+    toast.textContent=msg; toast.classList.add('show'); clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>toast.classList.remove('show'),1900);
+  }
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(text)}
+      else {const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok)throw new Error('copy failed')}
+      showToast();
+    }catch(e){showToast('复制未成功，请手动选择文本');}
+  }
+  document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',()=>copyText(btn.dataset.copy)));
+  document.querySelectorAll('.copy-recipe').forEach(btn=>btn.addEventListener('click',()=>{const card=btn.closest('.recipe-card');copyText(card.dataset.name+'\n'+card.dataset.ingredients)}));
+  document.querySelectorAll('.copy-name').forEach(btn=>btn.addEventListener('click',()=>copyText(btn.closest('.recipe-card').dataset.name)));
+  const filterButtons=[...document.querySelectorAll('.filter')];
+  const recipeCards=[...document.querySelectorAll('.recipe-card')];
+  const recipeCount=document.getElementById('recipe-count');
+  filterButtons.forEach(btn=>btn.addEventListener('click',()=>{
+    filterButtons.forEach(b=>b.classList.toggle('active',b===btn));
+    const filter=btn.dataset.filter; let visible=0;
+    recipeCards.forEach(card=>{const show=filter==='all'||card.dataset.category===filter;card.hidden=!show;if(show)visible++});
+    recipeCount.textContent=String(visible).padStart(2,'0')+' / SIGNATURE RECIPES';
+  }));
+  document.getElementById('copy-manifesto').addEventListener('click',()=>copyText('飞机上，一杯红柚金银花果汁，一点长相思，几块冰。\n\n原本各自独立的味道，因为一次随手的尝试，成了意料之外的搭配。\n\n那一刻，我突然觉得，生活里的很多灵感，其实一直都在。我们只是习惯了等待准备充分，等待一个合适的时机。\n\n而有些美好，只需要从手边开始。\n\n于是，有了随调 SipSpark。\n\n用 AI 探索手边已有的材料，用一点好奇心创造属于自己的味道。不必复杂，不必刻意，也不必每次都与众不同。\n\n随心一调，自有灵感。\n让即兴有一点章法，让日常多一点新意。'));
+</script>
+</body>
+</html>

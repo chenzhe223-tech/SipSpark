@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2EEE6">
+<meta name="description" content="随调 SipSpark：从手边已有的饮品与食材开始，即兴发现下一杯。无需注册，轻松生成配方、制作步骤与分享配图。">
+<title>开始随调｜随调 SipSpark</title>
+<style>
+:root{--paper:#F2EEE6;--pomelo:#C98778;--sage:#8B9582;--ink:#292D2A;--champagne:#D6C5A7;--sand:#E4D9CB;--muted:#79776F;--line:#D8D0C4;--card:#FAF8F3;--white:#fffdf9;--radius:22px;--shadow:0 18px 50px rgba(43,39,31,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:86px}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65}button,textarea{font:inherit}button{cursor:pointer}button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid rgba(201,135,120,.45);outline-offset:3px}a{color:inherit;text-decoration:none}.shell{width:min(1160px,calc(100% - 36px));margin:auto}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(242,238,230,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(216,208,196,.75)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand-mini{display:flex;align-items:center;gap:11px;font-weight:650;letter-spacing:.02em}.mark{width:34px;height:34px;border:1px solid var(--pomelo);border-radius:50% 50% 50% 10%;transform:rotate(-45deg);display:grid;place-items:center;color:var(--pomelo);font-size:14px;flex:none}.mark span{transform:rotate(45deg)}.brand-mini small{display:block;color:var(--muted);font-size:9px;font-weight:500;letter-spacing:.14em;margin-top:-2px}.navlinks{display:flex;align-items:center;gap:22px;font-size:12px;color:#6e6d65}.navlinks a:hover{color:var(--pomelo)}.nav-cta,.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:99px;font-size:12px;transition:transform .2s,background .2s,border-color .2s;white-space:nowrap}.nav-cta:hover,.btn:hover{transform:translateY(-1px);background:#41443e;border-color:#41443e}.btn.secondary{background:transparent;color:var(--ink);border-color:var(--line)}.btn.secondary:hover{background:#e8e0d5;border-color:#c8bdae}.btn:disabled{opacity:.48;cursor:not-allowed;transform:none}
+.hero{padding:36px 0 22px}.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.hero-copy{background:var(--card);border-radius:var(--radius);padding:clamp(25px,4vw,50px);min-height:380px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow);overflow:hidden;position:relative}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--pomelo);font-weight:700}.hero h1{font-size:clamp(39px,5.5vw,68px);line-height:1.16;letter-spacing:-.055em;font-weight:500;margin:22px 0 15px}.hero h1 .serif{font-family:"Songti SC","Noto Serif CJK SC",STSong,serif;font-weight:500;letter-spacing:.015em}.hero-desc{font-size:13px;color:#6b6a63;line-height:2;max-width:440px;margin:0}.hero-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px;margin-top:28px;font-size:10px;color:var(--muted)}.dot{height:5px;width:5px;background:var(--pomelo);border-radius:50%;display:inline-block}.hero-art{min-height:380px;border-radius:var(--radius);background:linear-gradient(155deg,#e6d8ca 0%,#f0e4d5 43%,#d9b4a5 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}.art-label{position:absolute;left:25px;top:24px;font-size:9px;letter-spacing:.18em;color:rgba(41,45,42,.68)}.sun{position:absolute;width:250px;height:250px;border-radius:50%;background:rgba(249,231,197,.78);top:10%;right:8%}.window{position:absolute;width:75%;height:64%;top:5%;right:-5%;border:15px solid rgba(90,87,78,.12);border-radius:48% 48% 35% 35% / 36% 36% 20% 20%;transform:rotate(8deg);box-shadow:inset 0 0 0 2px rgba(255,255,255,.38)}.window:before{content:"";position:absolute;inset:0;background:linear-gradient(165deg,rgba(255,255,255,.55),transparent 38%),linear-gradient(0deg,#c78577 0%,#e6c6b4 35%,#d9e1dd 65%,#f5e9d4 100%);border-radius:inherit}.glass-scene{width:min(60%,255px);position:relative;z-index:2;margin-top:65px;filter:drop-shadow(0 25px 24px rgba(75,53,45,.17))}.art-caption{position:absolute;bottom:22px;left:25px;right:25px;display:flex;justify-content:space-between;align-items:end;gap:12px;color:#514d46}.art-caption strong{font-family:Georgia,serif;font-size:21px;font-weight:400;font-style:italic;display:block}.art-caption span{font-size:9px;letter-spacing:.11em;text-transform:uppercase}
+.section{padding:28px 0 50px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:22px;margin-bottom:18px}.section-head h2{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:clamp(26px,3.6vw,38px);line-height:1.3;font-weight:500;letter-spacing:.025em;margin:6px 0 0}.section-head p{font-size:12px;line-height:1.9;color:var(--muted);max-width:400px;margin:0}.generator{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:stretch}.input-panel,.side-panel{background:var(--card);border:1px solid rgba(216,208,196,.7);border-radius:var(--radius);padding:clamp(20px,3vw,30px)}.field-label{display:block;font-size:14px;font-weight:600;margin-bottom:8px}.field-help{font-size:11px;color:var(--muted);margin:0 0 12px;line-height:1.8}.textarea{width:100%;min-height:126px;resize:vertical;border:1px solid var(--line);border-radius:14px;background:var(--white);padding:15px 16px;color:var(--ink);font-size:13px;line-height:1.9;outline:none;transition:border .2s,box-shadow .2s}.textarea:focus{border-color:var(--pomelo);box-shadow:0 0 0 3px rgba(201,135,120,.1)}.quick-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}.quick-label{font-size:10px;color:var(--muted);margin-right:2px}.chip{border:1px solid var(--line);background:transparent;color:#67655d;border-radius:99px;padding:7px 11px;font-size:10px;transition:.18s}.chip:hover,.chip.active{background:#ead6ce;border-color:#d6b5a9;color:#6f443a}.mood-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:17px}.mood-label{font-size:11px;color:#63625a;align-self:center;margin-right:3px}.form-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:21px;padding-top:18px;border-top:1px solid var(--line)}.privacy-note{font-size:10px;line-height:1.7;color:var(--muted);max-width:300px}.generate-btn{display:flex;align-items:center;gap:10px;padding:13px 20px;font-size:12px}.generate-btn .spark{font-size:15px;color:#e1b3a3}.side-panel{background:#e8dfd3;display:flex;flex-direction:column;justify-content:space-between;gap:24px;position:relative;overflow:hidden}.side-panel:after{content:"✳︎";font-family:Georgia,serif;position:absolute;right:-7px;top:-32px;font-size:150px;color:rgba(201,135,120,.14);pointer-events:none}.side-panel>*{position:relative;z-index:1}.side-title{font:italic 26px Georgia,serif;margin:0 0 8px}.side-copy{font-size:12px;line-height:1.9;color:#71685d;margin:0}.promise-list{display:grid;gap:13px}.promise{display:flex;align-items:start;gap:10px;font-size:11px;line-height:1.7;color:#514f47}.promise-num{height:22px;width:22px;flex:none;border:1px solid #c9b9a7;border-radius:50%;display:grid;place-items:center;font:italic 11px Georgia,serif;color:#9f675a}
+.status{display:none;background:#e8dfd3;border-radius:12px;padding:12px 15px;margin-top:15px;color:#5a564e;font-size:12px;line-height:1.8}.status.show{display:block}.status.error{background:#f4ddd6;color:#814b41}.results-section{padding:20px 0 68px}.results-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:18px}.results-head h2{font-family:"Songti SC","Noto Serif CJK SC",serif;font-weight:500;font-size:clamp(27px,3.6vw,39px);margin:5px 0 0;line-height:1.3}.results-note{font-size:11px;color:var(--muted);line-height:1.8;text-align:right;max-width:350px}.results-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.mix-card{min-width:0;border-radius:19px;background:var(--card);border:1px solid rgba(216,208,196,.85);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}.mix-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.card-top{min-height:116px;padding:20px 20px 15px;background:linear-gradient(145deg,#ead9cf,#f2e6da);position:relative;overflow:hidden}.card-top.green{background:linear-gradient(145deg,#d6ded1,#eef0e5)}.card-top.gold{background:linear-gradient(145deg,#e9d8b9,#f5ead2)}.card-top:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.28);right:-35px;top:-45px}.card-top .recipe-id,.card-top h3,.card-top .en-name,.card-top .pill{position:relative;z-index:1}.recipe-id{font-size:9px;letter-spacing:.16em;color:#a46c5f;font-weight:700}.card-top h3{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:23px;font-weight:500;margin:5px 0 0;line-height:1.25}.en-name{font:italic 13px Georgia,serif;color:#777067;margin-top:4px}.pill{display:inline-flex;border:1px solid rgba(115,105,91,.22);border-radius:99px;padding:4px 8px;font-size:9px;color:#6f685f;position:absolute;right:16px;top:16px;background:rgba(255,255,255,.25)}.card-body{padding:18px 19px 17px;display:flex;flex-direction:column;flex:1}.description{font-size:12px;line-height:1.85;color:#6d6a61;margin:0 0 15px;min-height:44px}.subhead{font-size:9px;letter-spacing:.13em;color:var(--muted);font-weight:700;margin-bottom:7px}.ingredient-list{list-style:none;margin:0;padding:0 0 14px;border-bottom:1px solid var(--line);display:grid;gap:6px}.ingredient-list li{display:flex;justify-content:space-between;gap:8px;align-items:start;font-size:11px;line-height:1.55}.ingredient-list li span:first-child{color:#4f5049}.ingredient-list li span:last-child{color:#7b766c;font-variant-numeric:tabular-nums;white-space:nowrap}.steps{margin:14px 0 0;padding:0 0 0 18px;color:#55564e;font-size:11px;line-height:1.8}.steps li{padding-left:3px;margin:0 0 4px}.flavour{margin-top:13px;padding:10px 11px;border-radius:10px;background:#f0ebe2;color:#6f685f;font-size:10px;line-height:1.7}.alcohol-note{margin-top:11px;font-size:10px;color:#8b6558;line-height:1.7}.card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}.btn-mini{border:1px solid var(--line);border-radius:99px;background:transparent;color:#5c5b54;padding:8px 10px;font-size:10px;transition:.18s}.btn-mini:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}.btn-mini.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}.btn-mini.primary:hover{background:#41443e}
+.bottom-note{margin-top:25px;padding:17px 20px;border:1px solid var(--line);border-radius:13px;font-size:11px;line-height:1.9;color:var(--muted);display:flex;gap:12px;align-items:start}.bottom-note strong{color:#56564e}.note-mark{width:22px;height:22px;flex:none;border:1px solid var(--pomelo);border-radius:50% 50% 50% 10%;transform:rotate(-45deg);display:grid;place-items:center;color:var(--pomelo);font-size:10px;margin-top:1px}.note-mark span{transform:rotate(45deg)}
+footer{border-top:1px solid var(--line);padding:23px 0 31px;color:var(--muted);font-size:10px}.footer-row{display:flex;align-items:center;justify-content:space-between;gap:15px}.footer-logo{font-size:13px;color:var(--ink);font-weight:650;margin-bottom:2px}.footer-row a:hover{color:var(--pomelo)}
+.modal{position:fixed;inset:0;z-index:80;background:rgba(34,34,30,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modal-dialog{width:min(720px,100%);max-height:min(92vh,900px);overflow:auto;background:var(--paper);border-radius:22px;padding:18px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.modal-head strong{font-size:14px}.close-btn{height:34px;width:34px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:18px}.modal-content{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:start}.poster-preview{width:100%;border-radius:12px;display:block;background:var(--card);box-shadow:0 12px 30px rgba(41,45,42,.12)}.modal-side{padding:6px 0}.modal-side h3{font-family:"Songti SC","Noto Serif CJK SC",serif;font-size:25px;font-weight:500;line-height:1.3;margin:0 0 8px}.modal-side p{font-size:12px;color:var(--muted);line-height:1.9;margin:0 0 18px}.modal-actions{display:grid;gap:9px}.modal-footnote{font-size:10px;color:var(--muted);line-height:1.8;margin-top:16px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;z-index:100;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:99px;font-size:12px;box-shadow:0 10px 35px rgba(0,0,0,.14);transition:.25s;max-width:calc(100% - 30px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:850px){.navlinks{gap:13px}.hero-grid{grid-template-columns:1fr .8fr}.hero-art{min-height:360px}.hero-copy{min-height:360px}.generator{grid-template-columns:1fr 220px}.results-grid{gap:11px}.card-body{padding:15px}.card-top{padding:17px 15px}.card-top h3{font-size:21px}.pill{right:10px;top:10px}}
+@media(max-width:650px){.shell{width:min(100% - 24px,560px)}.nav{height:62px}.brand-mini{gap:8px}.mark{width:30px;height:30px}.brand-mini{font-size:12px}.brand-mini small{font-size:8px}.navlinks{display:none}.nav-cta{font-size:11px;padding:8px 12px}.hero{padding:18px 0 17px}.hero-grid{grid-template-columns:1fr;gap:10px}.hero-copy{min-height:unset;padding:25px 22px 22px}.hero h1{font-size:42px;margin:15px 0 12px}.hero-desc{font-size:12px}.hero-meta{margin-top:20px;padding-top:16px}.hero-art{min-height:240px}.sun{width:180px;height:180px}.window{height:73%;width:65%;right:0;top:2%}.glass-scene{width:145px;margin-top:37px}.art-label{top:16px;left:17px;font-size:8px}.art-caption{left:17px;right:17px;bottom:15px}.art-caption strong{font-size:18px}.section{padding:20px 0 34px}.section-head{display:block;margin-bottom:14px}.section-head p{margin-top:10px}.input-panel,.side-panel{padding:19px;border-radius:17px}.generator{grid-template-columns:1fr;gap:10px}.side-panel{gap:17px}.side-title{font-size:24px}.form-foot{align-items:start;flex-direction:column}.privacy-note{max-width:none}.generate-btn{width:100%;justify-content:center}.results-section{padding:15px 0 43px}.results-head{display:block}.results-note{text-align:left;margin-top:8px}.results-grid{grid-template-columns:1fr;gap:13px}.mix-card{display:grid;grid-template-columns:1fr}.card-top{min-height:105px}.card-body{padding:16px}.description{min-height:0}.ingredient-list{padding-bottom:12px}.bottom-note{padding:14px}.footer-row{align-items:start;flex-direction:column;gap:9px}.modal{padding:10px}.modal-dialog{padding:13px;border-radius:17px}.modal-content{grid-template-columns:1fr;gap:13px}.poster-preview{max-width:360px;margin:auto}.modal-side h3{font-size:23px}.modal-actions{grid-template-columns:1fr 1fr}.modal-actions .btn{white-space:normal}.modal-footnote{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="shell nav">
+  <a class="brand-mini" href="index.html" aria-label="返回随调 SipSpark 品牌主页"><span class="mark"><span>✳︎</span></span><span>随调 SipSpark<small>A SMALL SIP. A QUIET SPARK.</small></span></a>
+  <nav class="navlinks" aria-label="主导航"><a href="#how">怎么玩</a><a href="#results">即兴配方</a><a href="moments.html">生活灵感</a></nav>
+  <a class="nav-cta" href="index.html">品牌故事 ↗</a>
+</div></header>
+<main>
+<section class="hero shell"><div class="hero-grid">
+  <div class="hero-copy"><div><div class="eyebrow">SIPSPARK / YOUR MOMENT, YOUR MIX</div><h1><span class="serif">手边有什么，</span><br>就调出一点新意。</h1><p class="hero-desc">不必专业，不必添置。告诉随调你手边已有的饮品、食材和此刻的心情，从日常的材料开始，发现下一杯意料之外的好味道。</p></div><div class="hero-meta"><span><i class="dot"></i> 无需注册</span><span>只用手边材料</span><span>随手创作 · 轻松分享</span></div></div>
+  <div class="hero-art" aria-label="飞机舷窗与一杯即兴饮品的品牌插画" role="img"><div class="sun"></div><div class="window"></div><div class="art-label">MADE FOR THE MOMENT · 001</div>
+  <svg class="glass-scene" viewBox="0 0 260 290" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="heroLiquid" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5cfc0"/><stop offset=".55" stop-color="#d78f7f"/><stop offset="1" stop-color="#b66c61"/></linearGradient><linearGradient id="heroGlass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".58"/><stop offset=".5" stop-color="#fff" stop-opacity=".15"/><stop offset="1" stop-color="#fff" stop-opacity=".45"/></linearGradient></defs><ellipse cx="132" cy="257" rx="79" ry="13" fill="#785b4d" opacity=".14"/><path d="M66 57 L194 57 L178 220 Q175 241 155 242 L106 242 Q86 241 82 220 Z" fill="url(#heroGlass)" stroke="#fff" stroke-opacity=".78" stroke-width="2"/><path d="M72 102 L188 102 L174 218 Q172 232 154 233 L108 233 Q91 232 87 216 Z" fill="url(#heroLiquid)" opacity=".92"/><path d="M72 102 Q129 112 188 102" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/><path d="M86 117 L100 217" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/><circle cx="117" cy="147" r="4" fill="#fff" opacity=".55"/><circle cx="150" cy="181" r="3" fill="#fff" opacity=".5"/><circle cx="132" cy="199" r="2" fill="#fff" opacity=".65"/><g transform="translate(163 95) rotate(-14)"><circle r="25" fill="#f7dbb4" stroke="#fff5df" stroke-width="3"/><circle r="18" fill="#e9a67b"/><path d="M0 -18 L0 18 M-18 0 L18 0 M-13 -13 L13 13 M13 -13 L-13 13" stroke="#fff0ce" stroke-width="2.4"/></g><path d="M69 57 Q126 47 194 57" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/><path d="M82 69 L91 190" stroke="#fff" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/></svg>
+  <div class="art-caption"><div><strong>Mix what you have.</strong><span>用手边的，创造意料之外</span></div><span>随心而调 · 灵感自来</span></div></div>
+</div></section>
+<section id="how" class="section shell"><div class="section-head"><div><div class="eyebrow">START WITH WHAT YOU HAVE</div><h2>今天，你手边有什么？</h2></div><p>写材料、写场景，甚至写下想要的口感。随调会优先围绕你提到的材料组合；不确定的材料不会默认为你已有。</p></div>
+<div class="generator">
+  <div class="input-panel">
+    <label class="field-label" for="ingredients">告诉我你有什么，也可以告诉我此刻的心情。</label>
+    <p class="field-help">直接用自己的话描述即可，例如“红柚果汁、长相思、冰块，清爽微醺，只有杯子”。</p>
+    <textarea class="textarea" id="ingredients" maxlength="1200" aria-describedby="input-help" placeholder="写下你手边的饮品、酒水、茶、果汁、水果或场景……">红柚金银花果汁、长相思、冰块；我想要清爽微醺，只有杯子，不想额外购买材料。</textarea>
+    <div class="quick-row" aria-label="快速体验示例"><span class="quick-label">试试这些</span><button class="chip" data-example="红柚金银花果汁、长相思、冰块；清爽微醺，只有杯子">飞机上的即兴灵感</button><button class="chip" data-example="冷泡乌龙茶、橙汁、冰块；不含酒精，清爽一点">茶与果香</button><button class="chip" data-example="伏特加、蔓越莓汁、冰块；果香明显，不要太浓">果香微醺</button><button class="chip" data-example="只有冰美式咖啡和牛奶；想要三种简单变化">咖啡小实验</button></div>
+    <div class="mood-row" role="group" aria-label="风味偏好"><span class="mood-label">此刻想要</span><button class="chip active" data-mood="清爽微醺" aria-pressed="true">清爽微醺</button><button class="chip" data-mood="果香甜美" aria-pressed="false">果香甜美</button><button class="chip" data-mood="酸爽醒神" aria-pressed="false">酸爽醒神</button><button class="chip" data-mood="无酒精特调" aria-pressed="false">无酒精特调</button><button class="chip" data-mood="随便给我惊喜" aria-pressed="false">给我惊喜</button></div>
+    <div class="form-foot"><p class="privacy-note" id="input-help">无需注册。点击生成时，材料、场景与偏好会发送到随调 AI 服务用于生成配方；点击生图时才会发送作品名称、材料与风味描述。不要输入敏感信息。</p><button id="generate" class="btn generate-btn"><span class="spark">✳</span> 为我即兴创作 <span>↗</span></button></div>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </div>
+  <aside class="side-panel"><div><div class="eyebrow">A SMALL SIP. A QUIET SPARK.</div><p class="side-title">不必等到万事俱备。</p><p class="side-copy">从手边开始，让即兴有一点章法，让日常多一点新意。</p></div><div class="promise-list"><div class="promise"><span class="promise-num">01</span><span>优先使用你写下的材料，不硬塞专业器具。</span></div><div class="promise"><span class="promise-num">02</span><span>一次给出三款不同风格、可以动手做的配方。</span></div><div class="promise"><span class="promise-num">03</span><span>一键生成品牌风格配图，保存或分享你的灵感。</span></div></div></aside>
+</div></section>
+<section id="results" class="results-section shell"><div class="results-head"><div><div class="eyebrow">YOUR MOMENT, YOUR MIX</div><h2>为你调出的灵感</h2></div><p class="results-note" id="result-summary">先从一个小小的组合开始。每一款都有比例、步骤与可调整的空间。</p></div><div class="results-grid" id="results-grid" aria-live="polite"></div><div class="bottom-note"><span class="note-mark"><span>✳</span></span><div><strong>一点安全提醒。</strong> 含酒精配方的酒精度只根据常见酒款作估算，实际请以瓶身标注为准。请慢饮、不酒驾；未成年人、孕期、服药或需要保持警觉时，请选择真正的无酒精饮品。冰块融化会进一步稀释酒精度。</div></div></section>
+</main>
+<footer><div class="shell footer-row"><div><div class="footer-logo">随调 SipSpark</div><div>A small sip. A quiet spark.</div></div><div><a href="index.html">品牌理念</a>　·　<a href="moments.html">生活灵感</a></div><div>让灵感，发生在手边。</div></div></footer>
+<div class="modal" id="image-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-dialog"><div class="modal-head"><strong id="modal-title">你的即兴作品 · 分享配图</strong><button class="close-btn" id="close-modal" aria-label="关闭分享图片">×</button></div><div class="modal-content"><img class="poster-preview" id="poster-preview" alt="随调 SipSpark 饮品分享卡预览"><div class="modal-side"><div class="eyebrow">SIPSPARK / CREATED FOR YOU</div><h3 id="modal-drink-name">云上留白</h3><p>把这次即兴变成一张带有配方和品牌识别的分享卡。品牌分享卡在浏览器中生成；点击“生成 AI 写实图”时，才会将当前作品信息发送到服务端模型。无需注册。</p><div class="modal-actions"><button class="btn" id="generate-ai-image">生成 AI 写实图 ✳</button><button class="btn secondary" id="download-poster">下载分享图 PNG</button><button class="btn secondary" id="share-poster">分享图文 ↗</button><button class="btn secondary" id="copy-poster-text">复制配方文字</button></div><div class="modal-footnote" id="ai-image-status" role="status" aria-live="polite">配方与分享卡无需注册。AI 写实图会在你点击后生成；如服务暂不可用，仍可下载品牌风格分享卡。</div></div></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+"use strict";
+var mood = "清爽微醺";
+var recipes = [];
+var selectedRecipe = null;
+var svgUrl = "";
+var aiImageData = "";
+var currentEngine = "local";
+var AI_API = "https://sipspark-ai.chenzhe223.workers.dev";
+var toastTimer = null;
+var INGREDIENTS = [
+ {name:"红柚金银花果汁",keys:["红柚金银花果汁","金银花果汁"],group:"mixer",type:"juice",abv:0},
+ {name:"西柚汁",keys:["葡萄柚汁","西柚汁","红柚汁","西柚"],group:"mixer",type:"juice",abv:0},
+ {name:"橙汁",keys:["鲜榨橙汁","橙汁"],group:"mixer",type:"juice",abv:0},
+ {name:"苹果汁",keys:["苹果汁"],group:"mixer",type:"juice",abv:0},
+ {name:"菠萝汁",keys:["菠萝汁","凤梨汁"],group:"mixer",type:"juice",abv:0},
+ {name:"芒果汁",keys:["芒果汁","mango juice","mango"],group:"mixer",type:"juice",abv:0},
+ {name:"百香果汁",keys:["百香果汁","百香果饮料","passion fruit juice","passionfruit"],group:"mixer",type:"juice",abv:0},
+ {name:"葡萄汁",keys:["葡萄汁","grape juice"],group:"mixer",type:"juice",abv:0},
+ {name:"梨汁",keys:["梨汁","pear juice"],group:"mixer",type:"juice",abv:0},
+ {name:"西瓜汁",keys:["西瓜汁","watermelon juice"],group:"mixer",type:"juice",abv:0},
+ {name:"荔枝汁",keys:["荔枝汁","lychee juice"],group:"mixer",type:"juice",abv:0},
+ {name:"柠檬水",keys:["柠檬水","lemonade"],group:"mixer",type:"citrus",abv:0},
+ {name:"梅子汁",keys:["梅子汁","酸梅汤","酸梅汁"],group:"mixer",type:"juice",abv:0},
+ {name:"番茄汁",keys:["番茄汁","西红柿汁","tomato juice"],group:"mixer",type:"juice",abv:0},
+ {name:"无酒精啤酒",keys:["无酒精啤酒","0度啤酒","0% beer"],group:"mixer",type:"sparkling",abv:0},
+ {name:"无酒精葡萄酒",keys:["无酒精葡萄酒","脱醇葡萄酒","non-alcoholic wine"],group:"mixer",type:"juice",abv:0},
+ {name:"白桃汁",keys:["白桃汁","桃汁","桃子汁"],group:"mixer",type:"juice",abv:0},
+ {name:"蔓越莓汁",keys:["蔓越莓汁","cranberry"],group:"mixer",type:"juice",abv:0},
+ {name:"柠檬汁",keys:["柠檬汁","青柠汁","柠檬水","青柠水"],group:"mixer",type:"citrus",abv:0},
+ {name:"果汁",keys:["果汁"],group:"mixer",type:"juice",abv:0,generic:true},
+ {name:"乌龙茶",keys:["乌龙茶","冷泡乌龙"],group:"mixer",type:"tea",abv:0},
+ {name:"茉莉花茶",keys:["茉莉花茶","茉莉茶"],group:"mixer",type:"tea",abv:0},
+ {name:"绿茶",keys:["绿茶"],group:"mixer",type:"tea",abv:0},
+ {name:"红茶",keys:["红茶"],group:"mixer",type:"tea",abv:0},
+ {name:"冷泡茶",keys:["冷泡茶"],group:"mixer",type:"tea",abv:0},
+ {name:"茶",keys:["茶"],group:"mixer",type:"tea",abv:0,generic:true},
+ {name:"咖啡",keys:["冰美式","美式咖啡","浓缩咖啡","冰咖啡","咖啡"],group:"mixer",type:"coffee",abv:0},
+ {name:"牛奶",keys:["牛奶","鲜奶"],group:"mixer",type:"dairy",abv:0},
+ {name:"燕麦奶",keys:["燕麦奶"],group:"mixer",type:"dairy",abv:0},
+ {name:"椰子水",keys:["椰子水"],group:"mixer",type:"juice",abv:0},
+ {name:"椰奶",keys:["椰奶","椰浆"],group:"mixer",type:"dairy",abv:0},
+ {name:"酸奶",keys:["酸奶","希腊酸奶"],group:"mixer",type:"dairy",abv:0},
+ {name:"苏打水",keys:["苏打水","气泡水"," sparkling water","sparkling water"],group:"mixer",type:"sparkling",abv:0},
+ {name:"汤力水",keys:["汤力水","tonic water"],group:"mixer",type:"sparkling",abv:0},
+ {name:"可乐",keys:["可乐","cola"],group:"mixer",type:"soda",abv:0},
+ {name:"雪碧",keys:["雪碧","柠檬汽水"],group:"mixer",type:"soda",abv:0},
+ {name:"姜汁汽水",keys:["姜汁汽水","ginger beer"],group:"mixer",type:"soda",abv:0},
+ {name:"水",keys:["纯净水","矿泉水","饮用水"],group:"mixer",type:"water",abv:0},
+ {name:"长相思",keys:["长相思","sauvignon blanc","sauvignon"],group:"alcohol",type:"wine",abv:0.125},
+ {name:"白葡萄酒",keys:["白葡萄酒","白葡萄酒"],group:"alcohol",type:"wine",abv:0.125},
+ {name:"起泡酒",keys:["起泡酒","香槟","普罗塞克","prosecco"],group:"alcohol",type:"wine",abv:0.12},
+ {name:"红葡萄酒",keys:["红葡萄酒","红酒"],group:"alcohol",type:"wine",abv:0.13},
+ {name:"桃红葡萄酒",keys:["桃红葡萄酒","桃红酒"],group:"alcohol",type:"wine",abv:0.12},
+ {name:"金酒",keys:["金酒","gin"],group:"alcohol",type:"spirit",abv:0.4},
+ {name:"伏特加",keys:["伏特加","vodka"],group:"alcohol",type:"spirit",abv:0.4},
+ {name:"朗姆酒",keys:["朗姆酒","rum"],group:"alcohol",type:"spirit",abv:0.4},
+ {name:"威士忌",keys:["威士忌","whisky","whiskey"],group:"alcohol",type:"spirit",abv:0.4},
+ {name:"龙舌兰",keys:["龙舌兰","tequila"],group:"alcohol",type:"spirit",abv:0.4},
+ {name:"清酒",keys:["清酒","sake"],group:"alcohol",type:"ricewine",abv:0.15},
+ {name:"烧酒",keys:["烧酒","soju"],group:"alcohol",type:"spirit",abv:0.17},
+ {name:"梅酒",keys:["梅酒"],group:"alcohol",type:"liqueur",abv:0.12},
+ {name:"啤酒",keys:["啤酒","beer"],group:"alcohol",type:"beer",abv:0.05},
+ {name:"白酒",keys:["白酒"],group:"alcohol",type:"spirit",abv:0.4}
+];
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+function norm(s){return String(s||"").toLowerCase().replace(/\s+/g,"")}
+function toast(msg){var el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove("show")},2600)}
+function setStatus(msg,isError){var el=document.getElementById("status");el.textContent=msg;el.classList.add("show");el.classList.toggle("error",!!isError)}
+function clearStatus(){var el=document.getElementById("status");el.textContent="";el.classList.remove("show","error")}
+function detect(text){
+ var t=norm(text), found=[];
+ INGREDIENTS.forEach(function(item){if(item.keys.some(function(k){return t.indexOf(norm(k))>-1})){found.push(item)}});
+ found=found.filter(function(item){
+  if(!item.generic)return true;
+  var specific=INGREDIENTS.some(function(other){return !other.generic&&other.group===item.group&&other.type===item.type&&foundKey(t,other.keys)});
+  return !specific;
+ });
+ var unique={};found=found.filter(function(it){if(unique[it.name])return false;unique[it.name]=1;return true});
+ return {alcohols:found.filter(function(x){return x.group==="alcohol"}),mixers:found.filter(function(x){return x.group==="mixer"}),ice:/冰块|冰/.test(text),original:found};
+}
+function foundKey(t,keys){return keys.some(function(k){return t.indexOf(norm(k))>-1})}
+function firstMixer(mixers,type){for(var i=0;i<mixers.length;i++){if(!type||mixers[i].type===type)return mixers[i]}return null}
+function hasWord(t,arr){return arr.some(function(x){return t.indexOf(x)>-1})}
+function calcAbv(parts){
+ var total=0,pure=0,known=true;
+ parts.forEach(function(p){total+=p.ml;if(p.item.group==="alcohol"){if(!p.item.abv)known=false;else pure+=p.ml*p.item.abv}else if(p.item.abv!==0)known=false});
+ return total>0&&known&&pure>0?pure/total:null;
+}
+function buildRecipes(input,selectedMood){
+ var info=detect(input),t=norm(input),nonAlcohol=selectedMood==="无酒精特调";
+ var alcohols=info.alcohols,mixers=info.mixers,primaryAlcohol=alcohols[0],baseMixer=mixers[0];
+ if(nonAlcohol){mixers=mixers.filter(function(m){return m.abv===0});primaryAlcohol=null}
+ if(nonAlcohol&&mixers.length===0){return {error:"你选择了无酒精特调，但当前描述里没有识别到果汁、茶、咖啡、牛奶或气泡水等无酒精基底。请补充一种手边的饮料；我不会用酒精材料冒充无酒精配方。"}}
+ if(!primaryAlcohol&&mixers.length===0){return {error:"我还没识别出具体的饮品材料。请再写一两种手边已有的果汁、茶、咖啡、酒水、牛奶或气泡水，或点上方示例。我不想凭空假设你有未提到的材料。"}}
+ if(primaryAlcohol&&mixers.length===0){
+  var measures=[45,60,75],names=["冰面留香","一口时光","慢调余韵"],ens=["Ice Melt","Slow Sip","Quiet Finish"];
+  return {recipes:measures.map(function(ml,i){var parts=[{item:primaryAlcohol,ml:ml}];var steps=info.ice?["杯中加入冰块。","倒入"+ml+" ml "+primaryAlcohol.name+"。","用杯子轻轻转动两下，直接品饮。"]:["将"+primaryAlcohol.name+" "+ml+" ml倒入杯中。","如果手边有冰块，可以加入几块；没有也不影响这份原味直饮。","无需额外工具，先小口尝试。"];return makeRecipe(names[i],ens[i],i===0?"轻量直饮":i===1?"标准份量":"风味更集中",parts,steps,"只有一种含酒精材料时，不额外加入未提及的配料；三款只调整份量与冰饮方式。",info.ice,primaryAlcohol)})};
+ }
+ if(primaryAlcohol&&mixers.length){
+  var usable=mixers.slice(0,2),wine=primaryAlcohol.type==="wine",baseName=usable[0].name;
+  var templates=wine?[{a:45,m:135,n:"云上留白",e:"Cloudline",tag:"清爽轻盈"},{a:60,m:120,n:"柚光漫游",e:"Pomelo Glow",tag:"风味平衡"},{a:75,m:105,n:"长相思夕照",e:"Sauvignon Sunset",tag:"酒香更显"}]:[{a:30,m:90,n:"轻雾入杯",e:"Soft Haze",tag:"果香轻盈"},{a:45,m:90,n:"随心一调",e:"Easy Mix",tag:"酸甜平衡"},{a:60,m:60,n:"微光渐浓",e:"Golden Hour",tag:"风味更集中"}];
+  var selected=templates;
+  if(selectedMood==="果香甜美")selected=[templates[0],templates[1],templates[0]].map(function(x,i){return Object.assign({},x,{m:x.m+(i===0?20:i===2?35:0),tag:i===1?"果香平衡":"果汁感更明显"})});
+  if(selectedMood==="酸爽醒神")selected=templates.map(function(x,i){return Object.assign({},x,{tag:i===0?"清爽直接":i===1?"酸香平衡":"风味更集中"})});
+  return {recipes:selected.map(function(tm,i){
+   var parts=[{item:primaryAlcohol,ml:tm.a},{item:usable[0],ml:tm.m}];
+   if(usable[1]&&i===2){parts=[{item:primaryAlcohol,ml:tm.a},{item:usable[0],ml:Math.round(tm.m*.7)},{item:usable[1],ml:Math.round(tm.m*.3)}]}
+   var steps=[];
+   if(info.ice)steps.push("先在杯中放入冰块，约占杯子三分之一。");
+   steps.push("先倒入"+parts[1].ml+" ml "+parts[1].item.name+"。");
+   if(parts[2])steps.push("再加入"+parts[2].ml+" ml "+parts[2].item.name+"，让风味多一层变化。");
+   steps.push("缓缓加入"+tm.a+" ml "+primaryAlcohol.name+"。");
+   steps.push("用杯子轻轻转动几次即可，不需要摇酒壶。");
+   var desc=primaryAlcohol.type==="wine"?"白葡萄酒的清新酸度与"+usable[0].name+"的果香相遇，入口轻快，收尾干净。":"基酒带来明确的风味骨架，"+usable[0].name+"让整体更易入口，比例越轻，混合饮品的酒精度越低。";
+   if(selectedMood==="果香甜美")desc="让"+usable[0].name+"的存在感更高，整体更偏果香与柔和口感。";
+   if(selectedMood==="酸爽醒神")desc="让酸度与清新气息更突出，适合喜欢明亮、利落风味的人。";
+   return makeRecipe(tm.n,tm.e,tm.tag,parts,steps,desc,info.ice,primaryAlcohol);
+  })};
+ }
+ if(!primaryAlcohol&&mixers.length>=2){
+  var m1=mixers[0],m2=mixers[1],ratios=[{a:3,b:1,n:"轻风入杯",e:"Easy Breeze",tag:"主味轻盈"},{a:1,b:1,n:"晴光相遇",e:"Sunny Meet",tag:"风味平衡"},{a:1,b:3,n:"果香漫溢",e:"Fruit Reverie",tag:"层次更浓"}];
+  if(selectedMood==="果香甜美")ratios=[ratios[2],ratios[1],ratios[0]];
+  return {recipes:ratios.map(function(r,i){
+   var total=180,one=Math.round(total*r.a/(r.a+r.b)),two=total-one;
+   var parts=[{item:m1,ml:one},{item:m2,ml:two}];
+   var steps=[];
+   if(info.ice)steps.push("杯中先放入冰块。");
+   steps.push("倒入"+one+" ml "+m1.name+"。");
+   steps.push("再加入"+two+" ml "+m2.name+"。");
+   steps.push("用杯子轻轻转动几次即可，不需要额外工具。");
+   return makeRecipe(r.n,r.e,r.tag,parts,steps,selectedMood==="无酒精特调"?"完全不加入含酒精材料，用两种现有饮品组合出层次。":"用两种现有饮品的不同比例，获得从清淡到浓郁的三种风味。",info.ice,null);
+  })};
+ }
+ if(!primaryAlcohol&&mixers.length===1){
+  var m=mixers[0],volume=[120,150,180],singles=[{n:"原味留白",e:"Pure Pause",tag:"原味直饮"},{n:"冰序慢慢",e:"Ice Interval",tag:"清凉柔和"},{n:"浓香一刻",e:"Full Note",tag:"风味更集中"}];
+  return {recipes:volume.map(function(ml,i){
+   var parts=[{item:m,ml:ml}],steps=[];
+   if(i===1&&info.ice)steps.push("先加入稍多冰块，让温度与融冰带来柔和变化。");
+   else if(i===0)steps.push("直接将"+m.name+" "+ml+" ml倒入杯中。");
+   else steps.push("将"+m.name+" "+ml+" ml倒入杯中，保留原本的风味。");
+   if(i===1&&!info.ice)steps.push("如果手边有冰块，可加入几块；没有就直接冷饮。");
+   steps.push("不添加未提及的材料，先尝一口，再按自己的口味调整份量。");
+   return makeRecipe(singles[i].n,singles[i].e,singles[i].tag,parts,steps,"目前只识别到"+m.name+"，所以这三款从份量、温度和饮用节奏做变化，不把未知材料当成已拥有。",info.ice,null);
+  })};
+ }
+ return {error:"我识别到了部分材料，但还不足以给出可靠的三款配方。请再补充一种饮品或明确写出你想用的材料；未识别的材料不会被当作你已经拥有。"};
+}
+function makeRecipe(name,en,tag,parts,steps,desc,hasIce,primaryAlcohol){
+ var abv=calcAbv(parts);
+ var total=parts.reduce(function(n,p){return n+p.ml},0);
+ var items=parts.map(function(p){return {name:p.item.name,ml:p.ml,group:p.item.group}});
+ var moodLine=mood==="无酒精特调"?"无酒精":(abv!==null?"约"+(abv*100).toFixed(1)+"% ABV":"即兴创作");
+ return {name:name,en:en,tag:tag,parts:items,steps:steps,description:desc,adjustment:primaryAlcohol?"想更清爽，增加果汁比例；想突出酒香，微微增加酒的比例。":"不增加新材料，只需按个人口味微调现有材料比例。",abv:abv,total:total,hasIce:hasIce,moodLine:moodLine,primaryAlcohol:primaryAlcohol?primaryAlcohol.name:"",alcohol:parts.some(function(p){return p.item.group==="alcohol"})};
+}
+function render(shouldScroll){
+ var text=document.getElementById("ingredients").value.trim();
+ clearStatus();
+ var result=buildRecipes(text,mood);
+ if(result.error){document.getElementById("results-grid").innerHTML="";document.getElementById("result-summary").textContent="还需要一点具体材料，才能把想法变成可制作的配方。";setStatus(result.error,true);if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});return;}
+ currentEngine="local";showRecipes(result.recipes,"已准备本地即兴建议。你也可以点击“为我即兴创作”调用真实 AI。",shouldScroll);
+}
+function showRecipes(list,summary,shouldScroll){recipes=list;var grid=document.getElementById("results-grid");grid.innerHTML="";recipes.forEach(function(r,i){grid.appendChild(createRecipeCard(r,i))});document.getElementById("result-summary").textContent=summary;if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});}
+function amountLabel(p){return (p.ml!==null&&p.ml!==undefined&&Number.isFinite(Number(p.ml))&&Number(p.ml)>0)?Number(p.ml)+" ml":(p.amount||"适量")}
+function knownAlcohol(name){var n=norm(name);return INGREDIENTS.some(function(item){return item.group==="alcohol"&&(item.name===name||item.keys.some(function(k){return norm(k)===n||n.indexOf(norm(k))>=0}))})}
+function transformAIResponse(payload,input){if(!payload||!Array.isArray(payload.recipes)||payload.recipes.length<3)throw new Error("AI 没有返回完整的三款配方。");var inputInfo=detect(input);return payload.recipes.slice(0,3).map(function(rec,i){var rawIngredients=rec.ingredients||[],hasIce=rawIngredients.some(function(ing){var n=norm(ing.name||"");return n.indexOf("冰")>=0||n==="ice"||n==="icecubes"}),parts=rawIngredients.filter(function(ing){var n=norm(ing.name||"");return !(n.indexOf("冰")>=0||n==="ice"||n==="icecubes")}).map(function(ing){var raw=ing.amountMl,amount=ing.amount||(raw!==null&&raw!==undefined?raw+" ml":"适量"),matched=INGREDIENTS.find(function(item){return item.name===ing.name||item.keys.some(function(k){return norm(k)===norm(ing.name)})});return {name:String(ing.name||"材料").slice(0,50),ml:(raw===null||raw===undefined||raw==="")?null:(Number.isFinite(Number(raw))?Number(raw):null),amount:amount,group:matched?matched.group:"mixer"}});if(!parts.length)throw new Error("某款配方缺少可饮用材料。");var alcohol=parts.some(function(p){return p.group==="alcohol"||knownAlcohol(p.name)})||(!rec.isAlcoholFree&&inputInfo.alcohols.length>0);if(mood==="无酒精特调"&&alcohol)throw new Error("AI 返回了含酒精材料，已拦截；请重新生成无酒精配方。");var abv=rec.estimatedAbv===null||rec.estimatedAbv===undefined?null:Number(rec.estimatedAbv);if(!alcohol)abv=0;if(alcohol&&(!Number.isFinite(abv)||abv===0))abv=null;return {name:String(rec.name||"随调灵感 "+(i+1)).slice(0,36),en:String(rec.englishName||rec.en||"SipSpark Mix "+(i+1)).slice(0,48),tag:String(rec.tag||"即兴特调").slice(0,24),description:String(rec.description||rec.flavor||"从手边材料出发的即兴搭配。").slice(0,240),parts:parts,steps:(rec.steps||[]).map(function(step){return String(step).slice(0,200)}).slice(0,6),flavor:String(rec.flavor||rec.description||"风味会随比例与原料而变化。").slice(0,240),adjustment:String(rec.adjustment||rec.adjustmentSuggestion||"想更清爽可增加果汁比例；想突出酒香可微微增加葡萄酒比例。").slice(0,180),abv:abv,alcohol:alcohol,hasIce:hasIce,primaryAlcohol:parts.filter(function(p){return p.group==="alcohol"})[0]?parts.filter(function(p){return p.group==="alcohol"})[0].name:"",engine:"workers-ai"}});}
+async function generateWithAI(shouldScroll){var input=document.getElementById("ingredients").value.trim();if(input.length<2){setStatus("先写下你手边的一两种材料。",true);return}var btn=document.getElementById("generate"),old=btn.innerHTML;btn.disabled=true;btn.textContent="正在为你寻找灵感…";clearStatus();try{var response=await fetch(AI_API+"/api/mix",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ingredients:input,mood:mood})});var payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 服务暂时不可用。");var list=transformAIResponse(payload,input);currentEngine="workers-ai";showRecipes(list,"AI 已根据你的描述创作 "+list.length+" 款方案。材料清单经过检查；制作前请核对酒瓶标签与实际用量。",shouldScroll)}catch(error){var fallback=buildRecipes(input,mood);if(fallback.error){setStatus((error.message||"AI 暂时不可用。")+" 本地建议也无法识别这些材料，请换一种具体写法或选择示例。",true)}else{currentEngine="local";showRecipes(fallback.recipes,"AI 服务暂不可用，已切换为本地规则建议。"+(error.message?"（"+error.message+"）":""),shouldScroll);setStatus("本次使用本地备用建议；稍后可再次点击 AI 生成。",false)}}finally{btn.disabled=false;btn.innerHTML=old}}
+function createRecipeCard(r,i){
+ var article=document.createElement("article");article.className="mix-card";
+ var top=document.createElement("div");top.className="card-top"+(i===1?" green":i===2?" gold":"");
+ var id=document.createElement("div");id.className="recipe-id";id.textContent="SIPSPARK · 0"+(i+1);
+ var title=document.createElement("h3");title.textContent=r.name;
+ var en=document.createElement("div");en.className="en-name";en.textContent=r.en;
+ var pill=document.createElement("span");pill.className="pill";pill.textContent=r.tag;
+ top.appendChild(id);top.appendChild(title);top.appendChild(en);top.appendChild(pill);
+ var body=document.createElement("div");body.className="card-body";
+ var desc=document.createElement("p");desc.className="description";desc.textContent=r.description;body.appendChild(desc);
+ var sh=document.createElement("div");sh.className="subhead";sh.textContent="INGREDIENTS / 配方";body.appendChild(sh);
+ var ul=document.createElement("ul");ul.className="ingredient-list";
+ r.parts.forEach(function(p){var li=document.createElement("li"),a=document.createElement("span"),b=document.createElement("span");a.textContent=p.name;b.textContent=amountLabel(p);li.appendChild(a);li.appendChild(b);ul.appendChild(li)});
+ if(r.hasIce){var li2=document.createElement("li"),a2=document.createElement("span"),b2=document.createElement("span");a2.textContent="冰块";b2.textContent="适量";li2.appendChild(a2);li2.appendChild(b2);ul.appendChild(li2)}
+ body.appendChild(ul);
+ var stephead=document.createElement("div");stephead.className="subhead";stephead.style.marginTop="14px";stephead.textContent="HOW TO MAKE / 做法";body.appendChild(stephead);
+ var ol=document.createElement("ol");ol.className="steps";r.steps.forEach(function(s){var li=document.createElement("li");li.textContent=s;ol.appendChild(li)});body.appendChild(ol);
+ var flavor=document.createElement("div");flavor.className="flavour";flavor.textContent="风味预期 · "+r.description;body.appendChild(flavor);
+ var tweak=document.createElement("div");tweak.className="flavour";tweak.style.marginTop="8px";tweak.textContent="随心微调 · "+(r.adjustment||"不增加新材料，按个人口味小幅调整比例。");body.appendChild(tweak);
+ if(r.alcohol){var warn=document.createElement("div");warn.className="alcohol-note";warn.textContent="估算酒精度："+(r.abv===null?"无法估算":(r.abv*100).toFixed(1)+"% ABV")+"（按常见酒款估算，未计冰块融化）；请慢饮，不酒驾。";body.appendChild(warn)}
+ var actions=document.createElement("div");actions.className="card-actions";
+ actions.appendChild(makeButton("生成配图","image",i,true));actions.appendChild(makeButton("复制配方","copy",i,false));actions.appendChild(makeButton("一键分享","share",i,false));body.appendChild(actions);
+ article.appendChild(top);article.appendChild(body);return article;
+}
+function makeButton(label,action,index,primary){var b=document.createElement("button");b.className="btn-mini"+(primary?" primary":"");b.type="button";b.textContent=label;b.dataset.action=action;b.dataset.index=String(index);return b}
+function recipeText(r){
+ var p=r.parts.map(function(x){return x.name+" "+amountLabel(x)}).join("；");
+ var abv=r.alcohol?"\n估算酒精度："+(r.abv===null?"无法估算":(r.abv*100).toFixed(1)+"% ABV")+"（估算值）":"\n酒精度：0% ABV";
+ return "随调 SipSpark｜"+r.name+" · "+r.en+"\n"+r.description+"\n配方："+p+(r.hasIce?"；冰块适量":"")+"\n做法："+r.steps.map(function(x,i){return (i+1)+". "+x}).join("\n")+"\n微调建议："+(r.adjustment||"按口味微调现有材料比例。")+abv+"\n随心而调，灵感自来。";
+}
+function makePosterSVG(r,index){
+ var colors=[["#f3d5ca","#ca8878","#9d5d54"],["#e0e7d8","#9aaa91","#687b62"],["#f2dfb6","#d6a95f","#a96f3a"]];
+ var c=colors[index%colors.length],title=esc(r.name),english=esc(r.en),description=esc(r.description),first=esc(r.parts.map(function(p){return p.name+" "+amountLabel(p)}).concat(r.hasIce?["冰块 适量"]:[]).join(" · "));
+ var percent=r.alcohol?(r.abv===null?"含酒精 · 度数未知":"约 "+(r.abv*100).toFixed(1)+"% ABV"):"0% ALCOHOL";
+ var glassFill=c[1];
+ return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F2EEE6"/><stop offset="1" stop-color="'+c[0]+'"/></linearGradient><linearGradient id="drink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+c[0]+'"/><stop offset=".55" stop-color="'+glassFill+'"/><stop offset="1" stop-color="'+c[2]+'"/></linearGradient><linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".82"/><stop offset=".5" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity=".64"/></linearGradient></defs><rect width="1080" height="1350" fill="url(#bg)"/><circle cx="846" cy="258" r="225" fill="#F7E9CE" opacity=".7"/><circle cx="200" cy="610" r="150" fill="#fff" opacity=".24"/><path d="M0 770 Q280 690 520 788 T1080 740 V1350 H0Z" fill="#292D2A" opacity=".045"/><text x="75" y="86" font-family="Arial,sans-serif" font-size="22" letter-spacing="6" fill="#79776F">SIPSPARK / A SMALL SIP. A QUIET SPARK.</text><path d="M82 120 H998" stroke="#D8D0C4" stroke-width="2"/><g transform="translate(540 445)"><ellipse cx="0" cy="280" rx="215" ry="34" fill="#51473D" opacity=".1"/><path d="M-166 -152 L166 -152 L125 208 Q120 244 85 250 H-85 Q-120 244 -125 208 Z" fill="url(#glass)" stroke="#fff" stroke-opacity=".9" stroke-width="7"/><path d="M-152 -63 L152 -63 L118 203 Q113 230 82 232 H-82 Q-113 230 -118 203 Z" fill="url(#drink)" opacity=".96"/><path d="M-152 -63 Q0 -41 152 -63" fill="none" stroke="#fff" stroke-opacity=".88" stroke-width="5"/><path d="M-121 -45 L-91 190" stroke="#fff" stroke-opacity=".4" stroke-width="10" stroke-linecap="round"/><circle cx="-35" cy="40" r="10" fill="#fff" opacity=".6"/><circle cx="51" cy="94" r="7" fill="#fff" opacity=".55"/><circle cx="12" cy="158" r="5" fill="#fff" opacity=".45"/><g transform="translate(94 -87) rotate(-15)"><circle r="70" fill="#F6E4BB" stroke="#fff8e8" stroke-width="10"/><circle r="54" fill="'+c[1]+'"/><circle r="13" fill="#F7E9CE"/><path d="M0 -53 V53 M-53 0 H53 M-38 -38 L38 38 M38 -38 L-38 38" stroke="#F8EACB" stroke-width="7"/></g><path d="M-167 -152 Q0 -174 167 -152" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/></g><text x="75" y="828" font-family="Georgia,serif" font-style="italic" font-size="29" letter-spacing="2" fill="'+c[2]+'">'+english+'</text><text x="72" y="910" font-family="Songti SC,STSong,serif" font-size="76" fill="#292D2A">'+title+'</text><text x="76" y="970" font-family="Arial,sans-serif" font-size="24" fill="#69675F">'+description.slice(0,30)+'</text><path d="M78 1020 H1002" stroke="#D8D0C4" stroke-width="2"/><text x="78" y="1068" font-family="Arial,sans-serif" font-size="18" letter-spacing="4" fill="#79776F">YOUR MIX / 配方灵感</text><text x="78" y="1110" font-family="Arial,sans-serif" font-size="24" fill="#292D2A">'+first.slice(0,48)+'</text><text x="78" y="1168" font-family="Arial,sans-serif" font-size="21" fill="#79776F">'+percent+'</text><text x="78" y="1270" font-family="Songti SC,STSong,serif" font-size="29" fill="#292D2A">随心而调，灵感自来。</text><text x="1000" y="1270" text-anchor="end" font-family="Georgia,serif" font-style="italic" font-size="27" fill="'+c[2]+'">随调 SipSpark</text><text x="80" y="1310" font-family="Arial,sans-serif" font-size="15" letter-spacing="2" fill="#79776F">MIX WHAT YOU HAVE. CREATE WHAT YOU FEEL.</text></svg>';
+}
+function svgBlob(r,index){return new Blob([makePosterSVG(r,index)],{type:"image/svg+xml;charset=utf-8"})}
+function openImage(index){
+ selectedRecipe=recipes[index];if(!selectedRecipe)return;aiImageData="";
+ var blob=svgBlob(selectedRecipe,index);if(svgUrl)URL.revokeObjectURL(svgUrl);svgUrl=URL.createObjectURL(blob);
+ document.getElementById("poster-preview").src=svgUrl;
+ document.getElementById("modal-drink-name").textContent=selectedRecipe.name+" · "+selectedRecipe.en;
+ document.getElementById("ai-image-status").textContent="已准备品牌风格分享卡。点击“生成 AI 写实图”后，将按本款配方生成真实饮品照片。";
+ document.getElementById("image-modal").classList.add("open");document.body.style.overflow="hidden";document.getElementById("close-modal").focus();
+}
+function closeModal(){document.getElementById("image-modal").classList.remove("open");document.body.style.overflow="";if(svgUrl){URL.revokeObjectURL(svgUrl);svgUrl=""}}
+function svgToPng(r,index){
+ return new Promise(function(resolve,reject){
+  var url=URL.createObjectURL(svgBlob(r,index)),img=new Image();
+  img.onload=function(){try{var canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;var ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,1080,1350);canvas.toBlob(function(blob){URL.revokeObjectURL(url);if(blob)resolve(blob);else reject(new Error("PNG 导出失败"))},"image/png")}catch(e){URL.revokeObjectURL(url);reject(e)}};
+  img.onerror=function(){URL.revokeObjectURL(url);reject(new Error("配图暂时无法生成"))};img.src=url;
+ });
+}
+function downloadBlob(blob,name){var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(u)},1500)}
+function copyText(text){
+ if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
+ return new Promise(function(resolve,reject){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();ok?resolve():reject(new Error("当前浏览器不支持自动复制"))});
+}
+async function shareImageBlob(r,index){if(aiImageData&&selectedRecipe===r)return await makePhotoShareCard(r,index,aiImageData);return await svgToPng(r,index)}
+function makePhotoShareCard(r,index,dataUrl){return new Promise(function(resolve,reject){var image=new Image();image.onload=function(){try{var canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;var ctx=canvas.getContext("2d");ctx.fillStyle="#F2EEE6";ctx.fillRect(0,0,1080,1350);ctx.fillStyle="#79776F";ctx.font="22px Arial,sans-serif";ctx.fillText("SIPSPARK / A SMALL SIP. A QUIET SPARK.",72,72);ctx.strokeStyle="#D8D0C4";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(72,105);ctx.lineTo(1008,105);ctx.stroke();var x=72,y=140,w=936,h=660,ratio=Math.max(w/image.width,h/image.height),sw=w/ratio,sh=h/ratio,sx=(image.width-sw)/2,sy=(image.height-sh)/2;ctx.save();ctx.beginPath();ctx.moveTo(x+24,y);ctx.arcTo(x+w,y,x+w,y+h,24);ctx.arcTo(x+w,y+h,x,y+h,24);ctx.arcTo(x,y+h,x,y,24);ctx.arcTo(x,y,x+w,y,24);ctx.closePath();ctx.clip();ctx.drawImage(image,sx,sy,sw,sh,x,y,w,h);ctx.restore();ctx.fillStyle="#A96F61";ctx.font="italic 27px Georgia,serif";ctx.fillText(String(r.en||"SipSpark").slice(0,48),76,855);ctx.fillStyle="#292D2A";ctx.font="54px Songti SC,STSong,serif";ctx.fillText(String(r.name||"随调作品").slice(0,16),72,930);ctx.fillStyle="#69675F";ctx.font="23px Arial,sans-serif";ctx.fillText(String(r.description||"").slice(0,54),76,978);ctx.strokeStyle="#D8D0C4";ctx.beginPath();ctx.moveTo(72,1014);ctx.lineTo(1008,1014);ctx.stroke();ctx.fillStyle="#79776F";ctx.font="18px Arial,sans-serif";ctx.fillText("YOUR MIX / 配方灵感",76,1058);ctx.fillStyle="#292D2A";ctx.font="21px Arial,sans-serif";ctx.fillText(String(r.parts.map(function(p){return p.name+" "+amountLabel(p)}).join(" · ")).slice(0,50),76,1103);ctx.fillStyle="#8B6558";ctx.font="20px Arial,sans-serif";ctx.fillText(r.alcohol?(r.abv===null?"含酒精 · 度数需核对":"约 "+(r.abv*100).toFixed(1)+"% ABV"):"0% ALCOHOL",76,1150);ctx.fillStyle="#292D2A";ctx.font="30px Songti SC,STSong,serif";ctx.fillText("随心而调，灵感自来。",76,1250);ctx.fillStyle="#A96F61";ctx.font="italic 26px Georgia,serif";ctx.textAlign="right";ctx.fillText("随调 SipSpark",1005,1250);ctx.textAlign="left";ctx.fillStyle="#79776F";ctx.font="15px Arial,sans-serif";ctx.fillText("MIX WHAT YOU HAVE. CREATE WHAT YOU FEEL.",78,1305);canvas.toBlob(function(blob){if(blob)resolve(blob);else reject(new Error("分享图片合成失败"))},"image/png")}catch(e){reject(e)}};image.onerror=function(){reject(new Error("无法读取 AI 图片"))};image.src=dataUrl})}
+async function generateAIImage(){if(!selectedRecipe)return;var btn=document.getElementById("generate-ai-image"),status=document.getElementById("ai-image-status"),old=btn.textContent;btn.disabled=true;btn.textContent="正在生成写实饮品图…";status.textContent="正在调用 AI 图片模型；若失败仍可下载品牌插画卡。";try{var response=await fetch(AI_API+"/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:selectedRecipe.name,description:selectedRecipe.description,ingredients:selectedRecipe.parts.map(function(p){return p.name+" "+amountLabel(p)}).concat(selectedRecipe.hasIce?["冰块 适量"]:[]).join("、"),mood:mood})});var payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 图片服务暂不可用");var raw=String(payload.image||"");if(!raw)throw new Error("图片服务没有返回图像");aiImageData=raw.indexOf("data:image")===0?raw:"data:"+(payload.mimeType||"image/png")+";base64,"+raw;document.getElementById("poster-preview").src=aiImageData;status.textContent="AI 写实图已生成。下载或分享时，会将照片、作品名与配方文字排成一张品牌分享卡。";toast("AI 饮品图已生成")}catch(e){aiImageData="";status.textContent="AI 写实图暂不可用："+(e.message||"请稍后重试")+"。仍可使用品牌风格分享卡。";toast("暂时无法生成 AI 写实图")}finally{btn.disabled=false;btn.textContent=old}}
+async function shareRecipe(r,index,withImage){
+ var text=recipeText(r);
+ try{
+  if(withImage){
+   var png=await shareImageBlob(r,index),file=new File([png], "SipSpark-"+r.name+".png",{type:"image/png"});
+   if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"随调 SipSpark · "+r.name,text:text,files:[file]});toast("分享面板已打开");return}
+   downloadBlob(png,"SipSpark-"+r.name+".png");
+   try{await copyText(text);toast("图片已下载，配方文字也已复制，可直接分享")}catch(e){toast("图片已下载；可长按复制配方文字")}
+   return;
+  }
+  if(navigator.share){await navigator.share({title:"随调 SipSpark · "+r.name,text:text});return}
+  await copyText(text);toast("配方已复制，粘贴到聊天或社交平台即可分享");
+ }catch(e){if(e&&e.name==="AbortError")return;toast(e&&e.message?e.message:"分享失败，请重试")}
+}
+document.getElementById("generate").addEventListener("click",function(){generateWithAI(true)});
+document.getElementById("ingredients").addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key==="Enter")render()});
+document.querySelectorAll("[data-example]").forEach(function(b){b.addEventListener("click",function(){document.getElementById("ingredients").value=b.getAttribute("data-example");document.querySelectorAll("[data-example]").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById("ingredients").focus()})});
+document.querySelectorAll("[data-mood]").forEach(function(b){b.addEventListener("click",function(){mood=b.getAttribute("data-mood");document.querySelectorAll("[data-mood]").forEach(function(x){var active=x===b;x.classList.toggle("active",active);x.setAttribute("aria-pressed",active?"true":"false")})})});
+document.getElementById("results-grid").addEventListener("click",function(e){var b=e.target.closest("button[data-action]");if(!b)return;var i=Number(b.dataset.index),r=recipes[i];if(!r)return;if(b.dataset.action==="image")openImage(i);if(b.dataset.action==="copy")copyText(recipeText(r)).then(function(){toast("配方已复制")}).catch(function(){toast("复制失败，请手动选择文字")});if(b.dataset.action==="share")shareRecipe(r,i,false)});
+document.getElementById("close-modal").addEventListener("click",closeModal);
+document.getElementById("image-modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal()});
+document.getElementById("generate-ai-image").addEventListener("click",generateAIImage);
+document.getElementById("download-poster").addEventListener("click",async function(){if(!selectedRecipe)return;try{var idx=recipes.indexOf(selectedRecipe),png=await shareImageBlob(selectedRecipe,idx);downloadBlob(png,"SipSpark-"+selectedRecipe.name+".png");toast("分享配图已保存")}catch(e){toast(e.message||"下载失败")}});
+document.getElementById("share-poster").addEventListener("click",function(){if(selectedRecipe)shareRecipe(selectedRecipe,recipes.indexOf(selectedRecipe),true)});
+document.getElementById("copy-poster-text").addEventListener("click",function(){if(selectedRecipe)copyText(recipeText(selectedRecipe)).then(function(){toast("配方文字已复制")}).catch(function(){toast("复制失败")})});
+document.getElementById("image-modal").addEventListener("transitionend",function(){});
+render();
+})();
+</script>
+</body>
+</html>
