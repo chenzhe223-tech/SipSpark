@@ -68,10 +68,12 @@ function validate(payload,input,mood){
    if(!iname||(!Number.isFinite(amountMl)&&!amount))throw new Error('missing measure');
    const group=ingredientGroup(iname);
    if(group<0||!allowedGroups.has(group))throw new Error('unlisted ingredient: '+iname);
-   return {name:iname,amountMl:Number.isFinite(amountMl)?Math.max(0,Math.min(500,amountMl)):null,amount:amount||null,optional:Boolean(it.optional),group:group};
+   const finalMl=isIce(iname)?0:(Number.isFinite(amountMl)?Math.max(0,Math.min(500,amountMl)):null);
+   const finalAmount=isIce(iname)?'适量':(finalMl!==null?finalMl+' ml':(amount||null));
+   return {name:iname,amountMl:finalMl,amount:finalAmount,optional:isIce(iname)?false:Boolean(it.optional),group:group};
   });
   const usedGroups=new Set(clean.map(it=>it.group));
-  for(const step of steps){const stepGroups=mentionedGroups(step);for(const group of stepGroups){if(!usedGroups.has(group))throw new Error('unlisted ingredient in steps')}} 
+  for(const step of steps){const stepGroups=mentionedGroups(step);for(const group of stepGroups){if(!usedGroups.has(group))throw new Error('unlisted ingredient in steps')}const needsTool=/(冷冻|冻结|冰箱|摇酒器|雪克杯|搅拌机|榨汁机|切碎|切片|煮沸|加热|冷藏|隔夜|freeze|freezer|refrigerat|shaker|blender|chop|slice)/i.test(step);const toolsMentioned=/(冰箱|冷冻|冷藏|摇酒器|雪克杯|搅拌机|榨汁机|刀|freezer|refrigerat|shaker|blender|knife)/i.test(input);if(needsTool&&!toolsMentioned)throw new Error('unlisted tool or slow preparation in steps')} 
   const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
   if((String(mood||'')+' '+String(input||'')).match(/无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail/i)&&alcoholParts.length)throw new Error('alcohol_not_allowed');
   const liquidParts=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
@@ -94,7 +96,7 @@ export default {async fetch(request,env){
  if(mix){
   const input=String(body.ingredients||body.text||'').trim(),mood=String(body.mood||'给我惊喜').slice(0,24);
   if(input.length<2)return json({error:'先写下一两种手边材料吧。'},400,origin);if(input.length>1200)return json({error:'输入太长了，请精简到 1200 字以内。'},413,origin);
-  const system='你是随调 SipSpark 的即兴调饮师。只输出一次合法 JSON 对象，最后一个 } 后立刻停止，不输出 Markdown、解释或重复内容。可用材料清单是唯一允许使用的材料。不要将复合饮品拆成原料，不得假设额外材料或器具。请生成正好3款配方，比例、风味、标签和名字要有明显区别。若清单同时含酒精基酒与非酒精饮料，至少两款需同时使用酒精与非酒精液体；若清单含冰块，至少两款加入冰块且在步骤中使用。用户选无酒精时，三款都必须真正无酒精。材料少时可调整已有材料比例。英文名需准确：长相思是 Sauvignon Blanc，金银花是 honeysuckle，不要误译为 ginseng。每款对象必须包含字段 name、englishName、tag、description、ingredients、steps、flavor、adjustment、isAlcoholFree、estimatedAbv、alcoholNote。ingredients 每项包含 name、amountMl（数字）、amount、optional；name 必须与可用材料清单中的某一名称完全一致。冰块 amountMl=0、amount=适量。步骤为3至4步，适合只有杯子，无需量杯或摇酒器。ABV 根据常见酒种浓度估算，冰块不计液体体积；无法确认则 estimatedAbv=null。顶层包含 recipes 数组（正好3项）和 safetyNote。';;
+  const system='你是随调 SipSpark 的即兴调饮师。只输出一次合法 JSON 对象，最后一个 } 后立刻停止，不输出 Markdown、解释或重复内容。可用材料清单是唯一允许使用的材料。不要将复合饮品拆成原料，不得假设额外材料或器具。请生成正好3款配方，比例、风味、标签和名字要有明显区别。若清单同时含酒精基酒与非酒精饮料，至少两款需同时使用酒精与非酒精液体；若清单含冰块，至少两款必须加入冰块且在步骤中实际加入，不能写“可选”或“如果使用”。用户选无酒精时，三款都必须真正无酒精。材料少时可调整已有材料比例。英文名需准确：长相思是 Sauvignon Blanc，金银花是 honeysuckle，不要误译为 ginseng。不要推荐冷冻、冷藏、隔夜浸泡、切碎、加热或需要额外器具的做法，除非用户明确说明具备相关材料或工具；“只有杯子”时只许倒入、加冰和用杯子轻轻搅拌。每款对象必须包含字段 name、englishName、tag、description、ingredients、steps、flavor、adjustment、isAlcoholFree、estimatedAbv、alcoholNote。ingredients 每项包含 name、amountMl（数字）、amount、optional；name 必须与可用材料清单中的某一名称完全一致。冰块 amountMl=0、amount=适量、optional=false。非冰液体 amount 必须和 amountMl 对应，使用“XX ml”而不是“适量”。步骤为3至4步，适合只有杯子，无需量杯或摇酒器。ABV 根据常见酒种浓度估算，冰块不计液体体积；无法确认则 estimatedAbv=null。顶层包含 recipes 数组（正好3项）和 safetyNote。';;
   try{const available=matchedMaterials(input).map(x=>x.name);if(!available.length)return json({error:'暂未识别到清楚的材料名称，请输入具体饮品或食材。'},400,origin);const prompt=system+'\n\n可用材料清单（唯一允许使用）：'+available.join('、')+'。\n用户原始描述：'+input+'\n风味偏好：'+mood+'\n请生成三款配方。';const result=await env.AI.run(TEXT_MODEL,{prompt:prompt,max_tokens:900,temperature:.1});return json(validate(parseObject(extract(result)),input,mood),200,origin)}
   catch(e){const message=String(e&&e.message||''),bad=message.indexOf('unlisted ingredient')>=0||message.indexOf('unlisted ingredient in steps')>=0,alc=message.indexOf('alcohol_not_allowed')>=0,parse=message.indexOf('invalid_json')>=0||message.indexOf('not enough recipes')>=0;return json({error:bad?'AI 配方或步骤混入未提及材料，已拦截。请写得更明确，或使用本地建议。':(alc?'检测到含酒精材料，无法把该配方标记为无酒精。请重试。':'AI 暂时没能可靠生成三款完整配方，请稍后重试或使用本地建议。'),detail:bad?message.slice(0,160):(alc?'alcohol_validation':(parse?'invalid_model_output':'model_unavailable'))},(bad||alc)?422:502,origin)}
  }
