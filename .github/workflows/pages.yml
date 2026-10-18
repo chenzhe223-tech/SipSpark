@@ -38,6 +38,18 @@ jobs:
           with open('/tmp/sipspark-app.js','w',encoding='utf-8') as f: f.write('\n'.join(parser.scripts))
           PY
           node --check /tmp/sipspark-app.js
+          node --check worker/index.js
+      - name: Verify AI Worker health
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 2 https://sipspark-ai.chenzhe223.workers.dev/health -o /tmp/sipspark-health.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/sipspark-health.json', encoding='utf-8') as f:
+              data=json.load(f)
+          if not data.get('ok') or data.get('service') != 'SipSpark AI':
+              raise SystemExit('SipSpark AI Worker health check failed')
+          print('SipSpark AI Worker is reachable')
+          PY
       - name: Prepare static site
         run: |
           mkdir -p _site
