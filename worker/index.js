@@ -49,7 +49,7 @@ function buildSafeSteps(clean){
  return steps.slice(0,4);
 }
 function rateLimit(req,image){const ip=req.headers.get('CF-Connecting-IP')||'unknown',now=Date.now();let r=counters.get(ip);if(!r||now-r.start>60000)r={start:now,count:0,images:0};r.count++;if(image)r.images++;counters.set(ip,r);if(counters.size>5000){for(const [k,v] of counters){if(now-v.start>120000)counters.delete(k);if(counters.size<=3500)break}}return {ok:r.count<=(image?5:10)&&(!image||r.images<=2),retry:Math.max(1,Math.ceil((60000-(now-r.start))/1000))}}
-function extract(r){if(typeof r==='string')return r;if(r&&typeof r.response==='string')return r.response;if(r&&typeof r.output_text==='string')return r.output_text;if(r&&Array.isArray(r.choices)&&r.choices[0]&&r.choices[0].message)return r.choices[0].message.content;return ''}
+function extract(r){if(typeof r==='string')return r;if(r&&typeof r.response==='string')return r.response;if(r&&r.response&&typeof r.response==='object')return JSON.stringify(r.response);if(r&&typeof r.output_text==='string')return r.output_text;if(r&&Array.isArray(r.choices)&&r.choices[0]&&r.choices[0].message)return r.choices[0].message.content;return ''}
 function parseObject(s){
  let t=String(s||'').trim(),f=String.fromCharCode(96).repeat(3);
  if(t.startsWith(f)){t=t.slice(f.length);if(t.startsWith('json'))t=t.slice(4);t=t.trim();if(t.endsWith(f))t=t.slice(0,-f.length).trim()}
