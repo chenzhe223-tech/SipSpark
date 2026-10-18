@@ -3,7 +3,7 @@ const TEXT_MODEL='@cf/meta/llama-3.2-3b-instruct';
 const IMAGE_MODEL='@cf/black-forest-labs/flux-1-schnell';
 const counters=new Map();
 const aliasGroups=[
-['长相思','sauvignon blanc','sauvignon'],['白葡萄酒','white wine'],
+['长相思白葡萄酒','长相思','sauvignon blanc','sauvignon'],['白葡萄酒','white wine'],
 ['红柚金银花果汁','红柚金银花汁','葡萄柚金银花果汁'],
 ['金银花果汁','honeysuckle juice'],['西柚汁','葡萄柚汁','红柚汁','grapefruit juice','pink grapefruit juice'],
 ['红柚','西柚','葡萄柚','grapefruit'],['金银花','金银花花材','honeysuckle flower'],
@@ -71,7 +71,7 @@ function validate(payload,input,mood){
    return {name:iname,amountMl:Number.isFinite(amountMl)?Math.max(0,Math.min(500,amountMl)):null,amount:amount||null,optional:Boolean(it.optional),group:group};
   });
   const usedGroups=new Set(clean.map(it=>it.group));
-  for(const step of steps){const stepGroups=mentionedGroups(step);for(const group of stepGroups){if(!allowedGroups.has(group))throw new Error('unlisted ingredient in steps')}} 
+  for(const step of steps){const stepGroups=mentionedGroups(step);for(const group of stepGroups){if(!usedGroups.has(group))throw new Error('unlisted ingredient in steps')}} 
   const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
   if((String(mood||'')+' '+String(input||'')).match(/无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail/i)&&alcoholParts.length)throw new Error('alcohol_not_allowed');
   const liquidParts=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
@@ -100,6 +100,6 @@ export default {async fetch(request,env){
  }
  const name=String(body.name||'随调作品').trim().slice(0,50),description=String(body.description||'一杯即兴饮品').trim().slice(0,200),ingredients=String(body.ingredients||'').trim().slice(0,300),mood=String(body.mood||'清爽轻盈').trim().slice(0,40);if(!name||!description)return json({error:'缺少作品名称或风味描述。'},400,origin);
  const prompt='Premium editorial beverage photography for lifestyle brand SipSpark (随调). Realistic single cocktail or mocktail in a clear glass with ice ONLY if in the supplied ingredients; natural window light, subtle real-life styling, warm paper cream #F2EEE6, muted pomelo coral #C98778, sage green #8B9582, charcoal accents. No text, letters, logos, watermark, hands, extra drinks, or ingredients not listed. Drink concept: '+name+'. Flavor: '+description+'. Ingredients available: '+ingredients+'. Mood: '+mood+'. Portrait 4:5 product photography, realistic glass refraction and condensation, refined natural shadows.';
- try{const result=await env.AI.run(IMAGE_MODEL,{prompt:prompt,steps:4});const img=result&&(result.image||(result.result&&result.result.image));if(!img||typeof img!=='string')throw new Error('image missing');return json({image:img,mimeType:'image/png',model:IMAGE_MODEL},200,origin)}
+ try{const result=await env.AI.run(IMAGE_MODEL,{prompt:prompt,steps:4});const img=result&&(result.image||(result.result&&result.result.image));if(!img||typeof img!=='string')throw new Error('image missing');return json({image:img,mimeType:'image/jpeg',model:IMAGE_MODEL},200,origin)}
  catch(e){return json({error:'图片生成服务暂时不可用，请重试；你仍可下载品牌风格分享卡。',detail:'image_model_unavailable'},502,origin)}
 }};
