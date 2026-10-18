@@ -80,6 +80,30 @@ jobs:
                       raise SystemExit('AI returned an ingredient outside this smoke-test set: '+name)
           print('AI recipe endpoint returned three ingredient-validated recipes')
           PY
+      - name: Smoke-test AI image generation
+        timeout-minutes: 3
+        run: |
+          set +e
+          status=$(curl --silent --show-error --max-time 150 --retry 1 --retry-delay 2 -w '%{http_code}' -X POST https://sipspark-ai.chenzhe223.workers.dev/api/image -H 'Content-Type: application/json' -H 'Origin: https://chenzhe223-tech.github.io' --data '{"name":"柚光漫游","description":"清爽的红柚与白葡萄酒风味","ingredients":"红柚金银花果汁、长相思、冰块","mood":"自然光下的清爽特调"}' -o /tmp/sipspark-image.json)
+          curl_status=$?
+          set -e
+          echo "AI image endpoint HTTP status: ${status:-curl-error}"
+          if [ "$curl_status" -ne 0 ]; then cat /tmp/sipspark-image.json 2>/dev/null || true; exit "$curl_status"; fi
+          python3 - <<'PY'
+          import base64, json
+          with open('/tmp/sipspark-image.json', encoding='utf-8') as f:
+              data=json.load(f)
+          image=data.get('image')
+          if not isinstance(image,str) or len(image)<1000:
+              raise SystemExit('AI image endpoint did not return a usable base64 image: '+str(data.get('error','missing image')))
+          try:
+              decoded=base64.b64decode(image,validate=True)
+          except Exception as e:
+              raise SystemExit('AI image response is not valid base64: '+str(e))
+          if not (decoded.startswith(b'\\xff\\xd8\\xff') or decoded.startswith(b'\\x89PNG\\r\\n\\x1a\\n')):
+              raise SystemExit('AI image response is not a recognizable JPEG or PNG')
+          print('AI image endpoint returned a decodable image ('+str(len(decoded))+' bytes)')
+          PY
       - name: Prepare static site
         run: |
           mkdir -p _site
