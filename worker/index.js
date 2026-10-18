@@ -55,6 +55,16 @@ function safeEnglishName(name,clean,allowedGroups,index){
 
 function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
 function isIce(name){const n=normalize(name);return n.indexOf('冰块')>=0||n==='冰'||n.indexOf('ice')>=0}
+function buildSafeSteps(clean){
+ const liquids=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
+ const hasIce=clean.some(it=>isIce(it.name));
+ const steps=[];
+ if(liquids.length)steps.push('将'+liquids.map(it=>it.name+' '+it.amountMl+' ml').join('、')+'依次倒入杯中。');
+ if(hasIce)steps.push('加入适量冰块。');
+ steps.push('用杯子轻轻转动混合即可。');
+ steps.push('先小口尝试；下次可按口味微调现有材料比例。');
+ return steps.slice(0,4);
+}
 function rateLimit(req,image){const ip=req.headers.get('CF-Connecting-IP')||'unknown',now=Date.now();let r=counters.get(ip);if(!r||now-r.start>60000)r={start:now,count:0,images:0};r.count++;if(image)r.images++;counters.set(ip,r);if(counters.size>5000){for(const [k,v] of counters){if(now-v.start>120000)counters.delete(k);if(counters.size<=3500)break}}return {ok:r.count<=(image?5:10)&&(!image||r.images<=2),retry:Math.max(1,Math.ceil((60000-(now-r.start))/1000))}}
 function extract(r){if(typeof r==='string')return r;if(r&&typeof r.response==='string')return r.response;if(r&&typeof r.output_text==='string')return r.output_text;if(r&&Array.isArray(r.choices)&&r.choices[0]&&r.choices[0].message)return r.choices[0].message.content;return ''}
 function parseObject(s){
@@ -83,8 +93,8 @@ function validate(payload,input,mood){
   const englishName=String(r.englishName||r.en||'').trim().slice(0,48);
   const description=String(r.description||r.flavor||'').trim().slice(0,240);
   const ingredients=Array.isArray(r.ingredients)?r.ingredients.slice(0,8):[];
-  const steps=Array.isArray(r.steps)?r.steps.slice(0,6).map(step=>String(step).trim().slice(0,200)):[];
-  if(!name||ingredients.length===0||steps.length<2)throw new Error('incomplete recipe');
+  const modelSteps=Array.isArray(r.steps)?r.steps.slice(0,6).map(step=>String(step).trim().slice(0,200)):[];
+  if(!name||ingredients.length===0||modelSteps.length<2)throw new Error('incomplete recipe');
   const clean=ingredients.map(it=>{
    const iname=String(it.name||'').trim().slice(0,50);
    const raw=it.amountMl!==undefined?it.amountMl:(it.amount_ml!==undefined?it.amount_ml:it.ml);
@@ -97,8 +107,7 @@ function validate(payload,input,mood){
    const finalAmount=isIce(iname)?'适量':(finalMl!==null?finalMl+' ml':(amount||null));
    return {name:iname,amountMl:finalMl,amount:finalAmount,optional:isIce(iname)?false:Boolean(it.optional),group:group};
   });
-  const usedGroups=new Set(clean.map(it=>it.group));
-  for(const step of steps){const stepGroups=mentionedGroups(step);for(const group of stepGroups){if(!usedGroups.has(group))throw new Error('unlisted ingredient in steps')}const needsTool=/(冷冻|冻结|冰箱|摇酒器|雪克杯|搅拌机|榨汁机|切碎|切片|煮沸|加热|冷藏|隔夜|freeze|freezer|refrigerat|shaker|blender|chop|slice)/i.test(step);const toolsMentioned=/(冰箱|冷冻|冷藏|摇酒器|雪克杯|搅拌机|榨汁机|刀|freezer|refrigerat|shaker|blender|knife)/i.test(input);if(needsTool&&!toolsMentioned)throw new Error('unlisted tool or slow preparation in steps')} 
+  const steps=buildSafeSteps(clean);
   const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
   if((String(mood||'')+' '+String(input||'')).match(/无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail/i)&&alcoholParts.length)throw new Error('alcohol_not_allowed');
   const liquidParts=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
