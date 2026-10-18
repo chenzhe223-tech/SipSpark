@@ -24,7 +24,8 @@ const aliasGroups=[
 ];
 function normalize(s){return String(s||'').toLowerCase().replace(/\s+/g,'').replace(/[，。；、,.!?！？:：\-_]/g,'')}
 function json(data,status,origin,extra){const h=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});if(origin===SITE_ORIGIN)h.set('access-control-allow-origin',SITE_ORIGIN);h.set('vary','Origin');h.set('access-control-allow-methods','GET, POST, OPTIONS');h.set('access-control-allow-headers','Content-Type');h.set('access-control-max-age','86400');if(extra)Object.keys(extra).forEach(k=>h.set(k,extra[k]));return new Response(JSON.stringify(data),{status:status||200,headers:h})}
-function mentionedGroups(input){const t=normalize(input),hits=[];aliasGroups.forEach((group,groupId)=>group.forEach(alias=>{const token=normalize(alias);if(!token)return;let from=0,at;while((at=t.indexOf(token,from))!==-1){hits.push({start:at,end:at+token.length,length:token.length,groupId:groupId});from=at+1}}));hits.sort((a,b)=>b.length-a.length||a.start-b.start);const selected=[];for(const hit of hits){if(!selected.some(x=>hit.start<x.end&&hit.end>x.start))selected.push(hit)}return new Set(selected.map(x=>x.groupId))}
+function matchedMaterials(input){const t=normalize(input),hits=[];aliasGroups.forEach((group,groupId)=>group.forEach(alias=>{const token=normalize(alias);if(!token)return;let from=0,at;while((at=t.indexOf(token,from))!==-1){hits.push({start:at,end:at+token.length,length:token.length,groupId:groupId});from=at+1}}));hits.sort((a,b)=>b.length-a.length||a.start-b.start);const selected=[];for(const hit of hits){if(!selected.some(x=>hit.start<x.end&&hit.end>x.start))selected.push(hit)}selected.sort((a,b)=>a.start-b.start);const groups=new Set(),out=[];for(const hit of selected){if(groups.has(hit.groupId))continue;groups.add(hit.groupId);out.push({groupId:hit.groupId,name:aliasGroups[hit.groupId][0]})}return out}
+function mentionedGroups(input){return new Set(matchedMaterials(input).map(x=>x.groupId))}
 function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIndex(group=>group.some(alias=>normalize(alias)===n))}
 function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
 function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
@@ -34,6 +35,7 @@ function extract(r){if(typeof r==='string')return r;if(r&&typeof r.response==='s
 function parseObject(s){
  let t=String(s||'').trim(),f=String.fromCharCode(96).repeat(3);
  if(t.startsWith(f)){t=t.slice(f.length);if(t.startsWith('json'))t=t.slice(4);t=t.trim();if(t.endsWith(f))t=t.slice(0,-f.length).trim()}
+ let fallback=null;
  for(let i=0;i<t.length;i++){
   if(t[i]!=='{')continue;
   let depth=0,inString=false,escape=false;
@@ -42,10 +44,11 @@ function parseObject(s){
    if(inString){if(escape){escape=false;continue}if(ch==='\\'){escape=true;continue}if(ch==='"')inString=false;continue}
    if(ch==='"'){inString=true;continue}
    if(ch==='{')depth++;else if(ch==='}')depth--;
-   if(depth===0){const candidate=t.slice(i,j+1);try{return JSON.parse(candidate)}catch(e){break}}
+   if(depth===0){try{const obj=JSON.parse(t.slice(i,j+1));if(obj&&Array.isArray(obj.recipes)&&obj.recipes.length>=3)return obj;if(!fallback&&obj&&typeof obj==='object')fallback=obj}catch(e){}break}
   }
  }
- throw new Error('invalid_json');
+ if(fallback)return fallback;
+ throw new Error('invalid_json')
 }
 function validate(payload,input,mood){
  if(!payload||!Array.isArray(payload.recipes)||payload.recipes.length<3)throw new Error('not enough recipes');
@@ -91,8 +94,8 @@ export default {async fetch(request,env){
  if(mix){
   const input=String(body.ingredients||body.text||'').trim(),mood=String(body.mood||'给我惊喜').slice(0,24);
   if(input.length<2)return json({error:'先写下一两种手边材料吧。'},400,origin);if(input.length>1200)return json({error:'输入太长了，请精简到 1200 字以内。'},413,origin);
-  const system='你是随调 SipSpark 的 AI 即兴调饮师。只输出一个 JSON 对象，不输出解释或 Markdown。用户可能随意描述材料、心情、位置和工具条件。只可使用输入里明确列出的饮品/食材；不能把复合饮品拆成未提供的原料（例如“红柚金银花果汁”不能拆成“红柚”和“金银花”）。不得默认有冰块、糖、柠檬、苏打水或调酒工具。请输出恰好 3 款差异清晰、马上可做的配方；材料少时只调整现有材料的比例，不得增添材料。每款需有中文名、英文名、风格标签、风味描述、材料清单、3至4个简单步骤、flavor、isAlcoholFree、estimatedAbv、alcoholNote。材料清单的 name 必须直接沿用用户输入中材料的名称，不要改成其组成原料；amountMl 为数字毫升，amount 为清晰文字；冰块 amountMl=0，amount=适量。只用用户明确提到的工具。含长相思、白葡萄酒、金酒、伏特加等酒精材料的配方不得标成无酒精；按常见酒款 ABV 与液体总体积估算酒精度，不确定则 estimatedAbv=null。无酒精模式必须不含任何酒精成分。返回 JSON 结构：{"recipes":[{"name":"中文名","englishName":"English Name","tag":"风格","description":"风味描述","ingredients":[{"name":"与用户输入一致的材料名","amountMl":60,"amount":"60 ml","optional":false}],"steps":["步骤一","步骤二","步骤三"],"flavor":"风味预期","isAlcoholFree":false,"estimatedAbv":0.03,"alcoholNote":"饮用提示"}],"safetyNote":"安全提示"}。';
-  try{const prompt=system+'\n\n用户输入：'+input+'\n风味偏好：'+mood+'\n请生成三款符合约束的配方。';const result=await env.AI.run(TEXT_MODEL,{prompt:prompt,max_tokens:1100,temperature:.2});return json(validate(parseObject(extract(result)),input,mood),200,origin)}
+  const system='你是随调 SipSpark 的 AI 即兴调饮师。严格只输出 JSON 对象，不要解释文字。只使用下一段“可用材料清单”中的材料名称；不能把复合饮品拆成未提供的原料（例如红柚金银花果汁不能拆成红柚或金银花）。不得默认存在冰块、糖、柠檬、苏打水或任何工具。恰好生成 3 款差异清楚、马上可做的配方；材料少时只改变现有材料比例。每款需要中英文名、风格、风味、材料清单、3至4个简单步骤、isAlcoholFree、estimatedAbv和alcoholNote。材料 name 必须逐字使用可用材料清单中的名称。amountMl 为数字毫升；冰块 amountMl=0、amount=适量。含酒精材料不得标为无酒精，按常见基酒 ABV 与液体体积估算酒精度；无法确认则 estimatedAbv=null。无酒精模式绝不能含酒精材料。JSON 对象格式：{"recipes":[{"name":"中文名","englishName":"English Name","tag":"风格","description":"风味描述","ingredients":[{"name":"与用户输入一致的材料名","amountMl":60,"amount":"60 ml","optional":false}],"steps":["步骤一","步骤二","步骤三"],"flavor":"风味预期","isAlcoholFree":false,"estimatedAbv":0.03,"alcoholNote":"饮用提示"}],"safetyNote":"安全提示"}。';
+  try{const available=matchedMaterials(input).map(x=>x.name);if(!available.length)return json({error:'暂未识别到清楚的材料名称，请输入具体饮品或食材。'},400,origin);const prompt=system+'\n\n可用材料清单（唯一允许使用）：'+available.join('、')+'。\n用户原始描述：'+input+'\n风味偏好：'+mood+'\n请生成三款配方。';const result=await env.AI.run(TEXT_MODEL,{prompt:prompt,max_tokens:1100,temperature:.2});return json(validate(parseObject(extract(result)),input,mood),200,origin)}
   catch(e){const message=String(e&&e.message||''),bad=message.indexOf('unlisted ingredient')>=0||message.indexOf('unlisted ingredient in steps')>=0,alc=message.indexOf('alcohol_not_allowed')>=0,parse=message.indexOf('invalid_json')>=0||message.indexOf('not enough recipes')>=0;return json({error:bad?'AI 配方或步骤混入未提及材料，已拦截。请写得更明确，或使用本地建议。':(alc?'检测到含酒精材料，无法把该配方标记为无酒精。请重试。':'AI 暂时没能可靠生成三款完整配方，请稍后重试或使用本地建议。'),detail:bad?'ingredient_validation':(alc?'alcohol_validation':(parse?'invalid_model_output':'model_unavailable'))},(bad||alc)?422:502,origin)}
  }
  const name=String(body.name||'随调作品').trim().slice(0,50),description=String(body.description||'一杯即兴饮品').trim().slice(0,200),ingredients=String(body.ingredients||'').trim().slice(0,300),mood=String(body.mood||'清爽轻盈').trim().slice(0,40);if(!name||!description)return json({error:'缺少作品名称或风味描述。'},400,origin);
