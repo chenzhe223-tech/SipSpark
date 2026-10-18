@@ -231,7 +231,7 @@ function createRecipeCard(r,i){
  var stephead=document.createElement("div");stephead.className="subhead";stephead.style.marginTop="14px";stephead.textContent="HOW TO MAKE / 做法";body.appendChild(stephead);
  var ol=document.createElement("ol");ol.className="steps";r.steps.forEach(function(s){var li=document.createElement("li");li.textContent=s;ol.appendChild(li)});body.appendChild(ol);
  var flavor=document.createElement("div");flavor.className="flavour";flavor.textContent="风味预期 · "+r.description;body.appendChild(flavor);
- if(r.alcohol){var warn=document.createElement("div");warn.className="alcohol-note";warn.textContent="估算酒精度："+(r.abv===null?"无法估算":(r.abv*100).toFixed(1)+"% ABV（按常见酒款估算，未计冰块融化）；请慢饮，不酒驾。";body.appendChild(warn)}
+ if(r.alcohol){var warn=document.createElement("div");warn.className="alcohol-note";warn.textContent="估算酒精度："+(r.abv===null?"无法估算":(r.abv*100).toFixed(1)+"% ABV")+"（按常见酒款估算，未计冰块融化）；请慢饮，不酒驾。";body.appendChild(warn)}
  var actions=document.createElement("div");actions.className="card-actions";
  actions.appendChild(makeButton("生成配图","image",i,true));actions.appendChild(makeButton("复制配方","copy",i,false));actions.appendChild(makeButton("一键分享","share",i,false));body.appendChild(actions);
  article.appendChild(top);article.appendChild(body);return article;
