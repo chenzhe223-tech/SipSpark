@@ -107,7 +107,7 @@ export default {async fetch(request,env){
  if(request.method==='OPTIONS'){if(origin&&origin!==SITE_ORIGIN)return new Response(null,{status:403});return json({ok:true},200,origin)}
  if(origin&&origin!==SITE_ORIGIN)return json({error:'Origin not allowed'},403,'');
  if(url.pathname==='/health'&&request.method==='GET')return json({ok:true,service:'SipSpark AI',textModel:TEXT_MODEL,imageModel:IMAGE_MODEL},200,origin);
- const mix=url.pathname==='/api/mix',image=url.pathname==='/api/image';if(!mix&&!image)return json({error:'Not found'},404,origin);if(request.method!=='POST')return json({error:'Method not allowed'},405,origin,{'allow':'POST, OPTIONS'});
+ const mix=url.pathname==='/api/mix',image=url.pathname==='/api/image';if(!mix&&!image)return json({error:'Not found'},404,origin);if((mix||image)&&origin!==SITE_ORIGIN)return json({error:'Only the SipSpark website can call this endpoint.'},403,'');if(request.method!=='POST')return json({error:'Method not allowed'},405,origin,{'allow':'POST, OPTIONS'});
  const limit=rateLimit(request,image);if(!limit.ok)return json({error:'操作有点快，请稍等片刻再试。',retryAfter:limit.retry},429,origin,{'retry-after':String(limit.retry)});
  const length=Number(request.headers.get('content-length')||0);if(length>12000)return json({error:'输入太长了，请精简后再试。'},413,origin);let body;try{body=await request.json()}catch(e){return json({error:'请提交有效的 JSON 内容。'},400,origin)}
  if(mix){
