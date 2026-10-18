@@ -38,8 +38,9 @@ function safeEnglishName(name,clean,allowedGroups,index){
   group.forEach(alias=>{
    const word=String(alias||'').trim();
    if(!/^[a-z][a-z\s-]*$/i.test(word))return;
-   const escaped=word.replace(/[.*+?^${}()|[\]\\]/g,'\\function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}');
-   if(new RegExp('\\\\b'+escaped+'\\\\b','i').test(candidate))hasUnknown=true;
+   const candidateWords=candidate.toLowerCase().match(/[a-z]+/g)||[];
+   const wordTokens=word.toLowerCase().match(/[a-z]+/g)||[];
+   if(wordTokens.length&&wordTokens.every((token,k)=>candidateWords.some((candidateToken,j)=>candidateToken===token&&wordTokens.every((w,n)=>candidateWords[j+n]===w))))hasUnknown=true;
   });
  });
  if(!hasUnknown&&candidate)return candidate.slice(0,48);
