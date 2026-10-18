@@ -28,6 +28,30 @@ function matchedMaterials(input){const t=normalize(input),hits=[];aliasGroups.fo
 function mentionedGroups(input){return new Set(matchedMaterials(input).map(x=>x.groupId))}
 function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIndex(group=>group.some(alias=>normalize(alias)===n))}
 function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
+function safeEnglishName(name,clean,allowedGroups,index){
+ const implied=new Set(allowedGroups);
+ if(allowedGroups.has(2)){[3,4,5,6].forEach(g=>implied.add(g))}
+ let hasUnknown=false;
+ const candidate=String(name||'');
+ aliasGroups.forEach((group,gid)=>{
+  if(implied.has(gid))return;
+  group.forEach(alias=>{
+   const word=String(alias||'').trim();
+   if(!/^[a-z][a-z\s-]*$/i.test(word))return;
+   const escaped=word.replace(/[.*+?^${}()|[\]\\]/g,'\\function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}');
+   if(new RegExp('\\\\b'+escaped+'\\\\b','i').test(candidate))hasUnknown=true;
+  });
+ });
+ if(!hasUnknown&&candidate)return candidate.slice(0,48);
+ const used=new Set(clean.map(x=>x.group)),words=[];
+ if(used.has(2))words.push('Pomelo Honeysuckle');
+ else if(used.has(4)||used.has(5))words.push('Grapefruit');
+ if(used.has(0))words.push('Sauvignon Blanc');
+ if(used.has(1))words.push('White Wine');
+ if(!words.length)words.push('SipSpark');
+ return words.join(' ')+' '+['Breeze','Cloudline','Sunlit Mix'][index%3];
+}
+
 function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
 function isIce(name){const n=normalize(name);return n.indexOf('冰块')>=0||n==='冰'||n.indexOf('ice')>=0}
 function rateLimit(req,image){const ip=req.headers.get('CF-Connecting-IP')||'unknown',now=Date.now();let r=counters.get(ip);if(!r||now-r.start>60000)r={start:now,count:0,images:0};r.count++;if(image)r.images++;counters.set(ip,r);if(counters.size>5000){for(const [k,v] of counters){if(now-v.start>120000)counters.delete(k);if(counters.size<=3500)break}}return {ok:r.count<=(image?5:10)&&(!image||r.images<=2),retry:Math.max(1,Math.ceil((60000-(now-r.start))/1000))}}
@@ -81,7 +105,7 @@ function validate(payload,input,mood){
   const pureAlcohol=alcoholParts.reduce((sum,x)=>sum+(x.item.amountMl===null?0:x.item.amountMl*x.strength),0);
   const canEstimate=alcoholParts.length>0&&alcoholParts.every(x=>x.item.amountMl!==null)&&liquidVolume>0;
   const estimate=alcoholParts.length===0?0:(canEstimate?Math.max(0,Math.min(.96,pureAlcohol/liquidVolume)):null);
-  return {name:name,englishName:englishName||'SipSpark Mix '+(i+1),tag:String(r.tag||r.style||'即兴特调').trim().slice(0,24),description:description,ingredients:clean.map(({group,...x})=>x),steps:steps,flavor:String(r.flavor||description).trim().slice(0,240),adjustment:String(r.adjustment||r.tweak||'不新增材料，只按个人口味微调现有材料比例。').trim().slice(0,180),isAlcoholFree:alcoholParts.length===0,estimatedAbv:estimate,alcoholNote:alcoholParts.length?'酒精度为按常见基酒度数与液体体积估算，实际以瓶身标注为准。':''};
+  return {name:name,englishName:safeEnglishName(englishName,clean,allowedGroups,i),tag:String(r.tag||r.style||'即兴特调').trim().slice(0,24),description:description,ingredients:clean.map(({group,...x})=>x),steps:steps,flavor:String(r.flavor||description).trim().slice(0,240),adjustment:String(r.adjustment||r.tweak||'不新增材料，只按个人口味微调现有材料比例。').trim().slice(0,180),isAlcoholFree:alcoholParts.length===0,estimatedAbv:estimate,alcoholNote:alcoholParts.length?'酒精度为按常见基酒度数与液体体积估算，实际以瓶身标注为准。':''};
  });
  return {recipes:recipes,safetyNote:String(payload.safetyNote||'含酒精饮品请慢饮，不酒驾；未成年人及需要保持警觉时请选择真正的无酒精饮品。').slice(0,240),engine:'workers-ai'};
 }
