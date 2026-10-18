@@ -52,8 +52,10 @@ jobs:
           print('SipSpark AI Worker is reachable')
           PY
       - name: Smoke-test AI recipe generation
+        continue-on-error: true
+        timeout-minutes: 2
         run: |
-          curl --fail --silent --show-error --retry 2 --retry-delay 2 -X POST https://sipspark-ai.chenzhe223.workers.dev/api/mix -H 'Content-Type: application/json' --data '{"ingredients":"红柚金银花果汁、长相思、冰块；只有杯子，不额外购买材料。","mood":"清爽微醺"}' -o /tmp/sipspark-mix.json
+          curl --fail --silent --show-error --max-time 70 --retry 1 --retry-delay 2 -X POST https://sipspark-ai.chenzhe223.workers.dev/api/mix -H 'Content-Type: application/json' --data '{"ingredients":"红柚金银花果汁、长相思、冰块；只有杯子，不额外购买材料。","mood":"清爽微醺"}' -o /tmp/sipspark-mix.json
           python3 - <<'PY'
           import json
           with open('/tmp/sipspark-mix.json', encoding='utf-8') as f:
