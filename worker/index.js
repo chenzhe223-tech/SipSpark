@@ -28,31 +28,15 @@ function matchedMaterials(input){const t=normalize(input),hits=[];aliasGroups.fo
 function mentionedGroups(input){return new Set(matchedMaterials(input).map(x=>x.groupId))}
 function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIndex(group=>group.some(alias=>normalize(alias)===n))}
 function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
+const englishByGroup=['Sauvignon Blanc','White Wine','Pomelo Honeysuckle Juice','Honeysuckle Juice','Grapefruit Juice','Grapefruit','Honeysuckle','Cranberry Juice','Cranberry','Orange Juice','Orange','Apple Juice','Apple','Peach Juice','Peach','Pineapple Juice','Pineapple','Lemon Juice','Lime Juice','Lemon','Lime','Oolong Tea','Jasmine Tea','Green Tea','Black Tea','Cold Brew Tea','Tea','Iced Americano','Americano','Iced Coffee','Coffee','Espresso','Milk','Oat Milk','Coconut Water','Coconut Milk','Yogurt','Sparkling Water','Tonic Water','Cola','Lemon-Lime Soda','Ginger Beer','Ice','Mineral Water','Purified Water','Water','Vodka','Gin','Rum','Whisky','Tequila','Sparkling Wine','Red Wine','Rosé Wine','Sake','Soju','Plum Wine','Beer','Baijiu'];
 function safeEnglishName(name,clean,allowedGroups,index){
- const implied=new Set(allowedGroups);
- if(allowedGroups.has(2)){[3,4,5,6].forEach(g=>implied.add(g))}
- let hasUnknown=false;
- const candidate=String(name||'');
- aliasGroups.forEach((group,gid)=>{
-  if(implied.has(gid))return;
-  group.forEach(alias=>{
-   const word=String(alias||'').trim();
-   if(!/^[a-z][a-z\s-]*$/i.test(word))return;
-   const candidateWords=candidate.toLowerCase().match(/[a-z]+/g)||[];
-   const wordTokens=word.toLowerCase().match(/[a-z]+/g)||[];
-   if(wordTokens.length&&wordTokens.every((token,k)=>candidateWords.some((candidateToken,j)=>candidateToken===token&&wordTokens.every((w,n)=>candidateWords[j+n]===w))))hasUnknown=true;
-  });
- });
- if(!hasUnknown&&candidate)return candidate.slice(0,48);
- const used=new Set(clean.map(x=>x.group)),words=[];
- if(used.has(2))words.push('Pomelo Honeysuckle');
- else if(used.has(4)||used.has(5))words.push('Grapefruit');
- if(used.has(0))words.push('Sauvignon Blanc');
- if(used.has(1))words.push('White Wine');
+ const used=[];
+ clean.forEach(item=>{if(!isIce(item.name)&&!used.includes(item.group))used.push(item.group)});
+ const words=used.map(group=>englishByGroup[group]).filter(Boolean);
  if(!words.length)words.push('SipSpark');
- return words.join(' ')+' '+['Breeze','Cloudline','Sunlit Mix'][index%3];
+ const suffix=['Breeze','Cloudline','Sunlit Mix'][index%3];
+ return words.join(' ')+' '+suffix;
 }
-
 function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
 function isIce(name){const n=normalize(name);return n.indexOf('冰块')>=0||n==='冰'||n.indexOf('ice')>=0}
 function buildSafeSteps(clean){
