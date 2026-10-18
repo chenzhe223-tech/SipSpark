@@ -1,27 +1,36 @@
 # 随调 SipSpark
 
-> 让灵感，发生在手边。  
+> 随心而调，灵感自来。  
 > A small sip. A quiet spark.
 
-这是 SipSpark 品牌理念与视觉看板的静态网站，使用真实生活摄影风格、低饱和品牌色和克制排版。
+随调 SipSpark 是一款从手边现有饮品与食材出发的即兴调饮轻应用，沿用品牌看板的雾纸白、柚皮粉、鼠尾草绿、墨岩黑与液滴星芒标识。
 
-## 页面
-- `index.html`：品牌理念、视觉色盘、品牌精神、六款即兴饮品、可复制配方和首发文案。
-- `moments.html`：九张生活场景宣传图库与摄影来源链接。
+## 在线页面
 
-## 发布
-GitHub Actions 将自动把静态页面发布到 `gh-pages` 分支。公开预览地址也可以使用 jsDelivr 或 Raw.githack，例如：
-- `https://raw.githack.com/chenzhe223-tech/SipSpark/gh-pages/index.html`
-- `https://raw.githack.com/chenzhe223-tech/SipSpark/gh-pages/moments.html`
+- **轻应用 / 即兴调饮：** https://chenzhe223-tech.github.io/SipSpark/app.html
+- 品牌理念与视觉看板： https://chenzhe223-tech.github.io/SipSpark/
+- 生活灵感图库： https://chenzhe223-tech.github.io/SipSpark/moments.html
 
-如需标准 GitHub Pages 域名，请在仓库 Settings → Pages 中选择从 `gh-pages` 分支的根目录发布。GitHub 的仓库设置权限不允许当前自动化连接创建 Pages 站点，因此这一步需要仓库所有者手动选择一次。
+## 当前轻应用功能
 
-## 色彩规范
-- 雾纸白 `#F2EEE6`
-- 柚皮粉 `#C98778`
-- 鼠尾草绿 `#8B9582`
-- 墨岩黑 `#292D2A`
-- 浅香槟 `#D6C5A7`
-- 沙岩米 `#E4D9CB`
+- 无需注册，手机和桌面浏览器均可使用。
+- 自由输入现有饮料、酒水、食材、器具条件与风味偏好。
+- 本地配方引擎一次提供 3 款不同比例/做法的参考方案，优先不引入未提及的材料。
+- 配方包含中英文作品名、比例、制作步骤、风味描述与适用时的估算酒精度。
+- 使用品牌视觉样式即时生成饮品分享卡，可下载 PNG、复制文字、调用系统分享；不支持文件分享的浏览器会回退到下载图片和复制文字。
+- 输入内容由当前页面脚本在浏览器本地处理；此版本不要求 API Key，不会把密钥暴露在前端。
 
-摄影素材与来源说明见 `moments.html`。页面中使用远程图片源，需要联网浏览。配方为创作参考；含酒精饮品请适量饮用，不要酒后驾驶。
+## 能力边界
+
+当前版本使用规则化的本地配方引擎，不是连接大语言模型的真实 AI 推理；分享图由 SVG 绘制并导出为 PNG，也不是 AI 写实照片生成。它们不需要账户或密钥，因此页面可直接打开使用。若要实现更开放的自然语言理解、真实 AI 图片生成与更丰富的个性化配方，需要把模型调用放到服务端（例如 Cloudflare Worker/Pages Functions），在服务端配置密钥，禁止把 API Key 写入公开仓库或浏览器代码。
+
+当前配方库只识别常见饮品与材料；输入不明确时会要求补充，不会凭空猜测用户拥有的材料。含酒精配方的 ABV 是基于常见酒款标称浓度的估算，非实验室测量。请适量饮用，不酒驾；需要保持警觉时选择真正无酒精饮品。
+
+## 页面与部署
+
+- `index.html`：品牌故事、视觉识别、色彩规范与首发作品。
+- `app.html`：即兴调饮轻应用。
+- `moments.html`：九张生活场景图文。
+- `.github/workflows/pages.yml`：在发布前使用 Node.js 检查应用脚本语法，并将三张页面一起发布到 `gh-pages` 分支。
+
+推送至 `main` 后，GitHub Actions 会运行检查并更新静态站点。
