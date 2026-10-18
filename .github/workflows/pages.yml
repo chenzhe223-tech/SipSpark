@@ -100,7 +100,8 @@ jobs:
               decoded=base64.b64decode(image,validate=True)
           except Exception as e:
               raise SystemExit('AI image response is not valid base64: '+str(e))
-          if not (decoded.startswith(b'\\xff\\xd8\\xff') or decoded.startswith(b'\\x89PNG\\r\\n\\x1a\\n')):
+          head=list(decoded[:8])
+          if not (head[:3] == [255,216,255] or head == [137,80,78,71,13,10,26,10]):
               raise SystemExit('AI image response is not a recognizable JPEG or PNG')
           print('AI image endpoint returned a decodable image ('+str(len(decoded))+' bytes)')
           PY
