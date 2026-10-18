@@ -90,6 +90,7 @@ function validate(payload,input,mood){
    const finalAmount=isIce(iname)?'适量':(finalMl!==null?finalMl+' ml':(amount||null));
    return {name:iname,amountMl:finalMl,amount:finalAmount,optional:isIce(iname)?false:Boolean(it.optional),group:group};
   });
+  if(!clean.some(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0))throw new Error('recipe has no liquid');
   const steps=buildSafeSteps(clean);
   const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
   if((String(mood||'')+' '+String(input||'')).match(/无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail/i)&&alcoholParts.length)throw new Error('alcohol_not_allowed');
