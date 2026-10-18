@@ -51,7 +51,7 @@ footer{border-top:1px solid var(--line);padding:23px 0 31px;color:var(--muted);f
 <section id="results" class="results-section shell"><div class="results-head"><div><div class="eyebrow">YOUR MOMENT, YOUR MIX</div><h2>为你调出的灵感</h2></div><p class="results-note" id="result-summary">先从一个小小的组合开始。每一款都有比例、步骤与可调整的空间。</p></div><div class="results-grid" id="results-grid" aria-live="polite"></div><div class="bottom-note"><span class="note-mark"><span>✳</span></span><div><strong>一点安全提醒。</strong> 含酒精配方的酒精度只根据常见酒款作估算，实际请以瓶身标注为准。请慢饮、不酒驾；未成年人、孕期、服药或需要保持警觉时，请选择真正的无酒精饮品。冰块融化会进一步稀释酒精度。</div></div></section>
 </main>
 <footer><div class="shell footer-row"><div><div class="footer-logo">随调 SipSpark</div><div>A small sip. A quiet spark.</div></div><div><a href="index.html">品牌理念</a>　·　<a href="moments.html">生活灵感</a></div><div>让灵感，发生在手边。</div></div></footer>
-<div class="modal" id="image-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-dialog"><div class="modal-head"><strong id="modal-title">你的即兴作品 · 分享配图</strong><button class="close-btn" id="close-modal" aria-label="关闭分享图片">×</button></div><div class="modal-content"><img class="poster-preview" id="poster-preview" alt="随调 SipSpark 饮品分享卡预览"><div class="modal-side"><div class="eyebrow">SIPSPARK / CREATED FOR YOU</div><h3 id="modal-drink-name">云上留白</h3><p>把这次即兴变成一张带有配方和品牌识别的分享卡。配图在你的浏览器中即时生成，无需注册或上传材料。</p><div class="modal-actions"><button class="btn" id="download-poster">下载 PNG 图片</button><button class="btn secondary" id="share-poster">分享图文 ↗</button><button class="btn secondary" id="copy-poster-text">复制配方文字</button></div><div class="modal-footnote">当前配图为随调品牌风格的即时矢量插画，并非外部 AI 照片模型生成。接入图像生成服务后可升级为真实场景图。</div></div></div></div></div>
+<div class="modal" id="image-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-dialog"><div class="modal-head"><strong id="modal-title">你的即兴作品 · 分享配图</strong><button class="close-btn" id="close-modal" aria-label="关闭分享图片">×</button></div><div class="modal-content"><img class="poster-preview" id="poster-preview" alt="随调 SipSpark 饮品分享卡预览"><div class="modal-side"><div class="eyebrow">SIPSPARK / CREATED FOR YOU</div><h3 id="modal-drink-name">云上留白</h3><p>把这次即兴变成一张带有配方和品牌识别的分享卡。配图在你的浏览器中即时生成，无需注册或上传材料。</p><div class="modal-actions"><button class="btn" id="generate-ai-image">生成 AI 写实图 ✳</button><button class="btn secondary" id="download-poster">下载分享图 PNG</button><button class="btn secondary" id="share-poster">分享图文 ↗</button><button class="btn secondary" id="copy-poster-text">复制配方文字</button></div><div class="modal-footnote" id="ai-image-status" role="status" aria-live="polite">配方与分享卡无需注册。AI 写实图会在你点击后生成；如服务暂不可用，仍可下载品牌风格分享卡。</div></div></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (function(){
@@ -60,6 +60,9 @@ var mood = "清爽微醺";
 var recipes = [];
 var selectedRecipe = null;
 var svgUrl = "";
+var aiImageData = "";
+var currentEngine = "local";
+var AI_API = "https://sipspark-ai.chenzhe223.workers.dev";
 var toastTimer = null;
 var INGREDIENTS = [
  {name:"红柚金银花果汁",keys:["红柚金银花果汁","金银花果汁"],group:"mixer",type:"juice",abv:0},
@@ -210,20 +213,14 @@ function render(shouldScroll){
  var text=document.getElementById("ingredients").value.trim();
  clearStatus();
  var result=buildRecipes(text,mood);
- if(result.error){
-  document.getElementById("results-grid").innerHTML="";
-  document.getElementById("result-summary").textContent="还需要一点具体材料，才能把想法变成可制作的配方。";
-  setStatus(result.error,true);
-  if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
-  return;
- }
- recipes=result.recipes;
- var grid=document.getElementById("results-grid");
- grid.innerHTML="";
- recipes.forEach(function(r,i){grid.appendChild(createRecipeCard(r,i))});
- document.getElementById("result-summary").textContent="根据你输入的材料与“"+mood+"”偏好，给出 "+recipes.length+" 款变化。每款仅使用列出的材料；冰块只在你提到时才作为已有材料。";
- if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+ if(result.error){document.getElementById("results-grid").innerHTML="";document.getElementById("result-summary").textContent="还需要一点具体材料，才能把想法变成可制作的配方。";setStatus(result.error,true);if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});return;}
+ currentEngine="local";showRecipes(result.recipes,"已准备本地即兴建议。你也可以点击“为我即兴创作”调用真实 AI。",shouldScroll);
 }
+function showRecipes(list,summary,shouldScroll){recipes=list;var grid=document.getElementById("results-grid");grid.innerHTML="";recipes.forEach(function(r,i){grid.appendChild(createRecipeCard(r,i))});document.getElementById("result-summary").textContent=summary;if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});}
+function amountLabel(p){return p.amount||((p.ml!==null&&p.ml!==undefined&&Number.isFinite(Number(p.ml)))?Number(p.ml)+" ml":"适量")}
+function knownAlcohol(name){var n=norm(name);return INGREDIENTS.some(function(item){return item.group==="alcohol"&&(item.name===name||item.keys.some(function(k){return norm(k)===n||n.indexOf(norm(k))>=0}))})}
+function transformAIResponse(payload,input){if(!payload||!Array.isArray(payload.recipes)||payload.recipes.length<3)throw new Error("AI 没有返回完整的三款配方。");var inputInfo=detect(input);return payload.recipes.slice(0,3).map(function(rec,i){var parts=(rec.ingredients||[]).map(function(ing){var raw=ing.amountMl,amount=ing.amount||(raw!==null&&raw!==undefined?raw+" ml":"适量"),matched=INGREDIENTS.find(function(item){return item.name===ing.name||item.keys.some(function(k){return norm(k)===norm(ing.name)})});return {name:String(ing.name||"材料").slice(0,50),ml:Number.isFinite(Number(raw))?Number(raw):null,amount:amount,group:matched?matched.group:"mixer"}});if(!parts.length)throw new Error("某款配方缺少材料清单。");var alcohol=parts.some(function(p){return p.group==="alcohol"||knownAlcohol(p.name)})||(!rec.isAlcoholFree&&inputInfo.alcohols.length>0);if(mood==="无酒精特调"&&alcohol)throw new Error("AI 返回了含酒精材料，已拦截；请重新生成无酒精配方。");var abv=rec.estimatedAbv===null||rec.estimatedAbv===undefined?null:Number(rec.estimatedAbv);if(!alcohol)abv=0;if(alcohol&&(!Number.isFinite(abv)||abv===0))abv=null;return {name:String(rec.name||"随调灵感 "+(i+1)).slice(0,36),en:String(rec.englishName||rec.en||"SipSpark Mix "+(i+1)).slice(0,48),tag:String(rec.tag||"即兴特调").slice(0,24),description:String(rec.description||rec.flavor||"从手边材料出发的即兴搭配。").slice(0,240),parts:parts,steps:(rec.steps||[]).map(function(step){return String(step).slice(0,200)}).slice(0,6),flavor:String(rec.flavor||rec.description||"风味会随比例与原料而变化。").slice(0,240),abv:abv,alcohol:alcohol,hasIce:parts.some(function(p){return norm(p.name).indexOf("冰")>=0||norm(p.name).indexOf("ice")>=0}),primaryAlcohol:parts.filter(function(p){return p.group==="alcohol"})[0]?parts.filter(function(p){return p.group==="alcohol"})[0].name:"",engine:"workers-ai"}});}
+async function generateWithAI(shouldScroll){var input=document.getElementById("ingredients").value.trim();if(input.length<2){setStatus("先写下你手边的一两种材料。",true);return}var btn=document.getElementById("generate"),old=btn.innerHTML;btn.disabled=true;btn.textContent="正在为你寻找灵感…";clearStatus();try{var response=await fetch(AI_API+"/api/mix",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ingredients:input,mood:mood})});var payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 服务暂时不可用。");var list=transformAIResponse(payload,input);currentEngine="workers-ai";showRecipes(list,"AI 已根据你的描述创作 "+list.length+" 款方案。材料清单经过检查；制作前请核对酒瓶标签与实际用量。",shouldScroll)}catch(error){var fallback=buildRecipes(input,mood);if(fallback.error){setStatus((error.message||"AI 暂时不可用。")+" 本地建议也无法识别这些材料，请换一种具体写法或选择示例。",true)}else{currentEngine="local";showRecipes(fallback.recipes,"AI 服务暂不可用，已切换为本地规则建议。"+(error.message?"（"+error.message+"）":""),shouldScroll);setStatus("本次使用本地备用建议；稍后可再次点击 AI 生成。",false)}}finally{btn.disabled=false;btn.innerHTML=old}}
 function createRecipeCard(r,i){
  var article=document.createElement("article");article.className="mix-card";
  var top=document.createElement("div");top.className="card-top"+(i===1?" green":i===2?" gold":"");
@@ -236,7 +233,7 @@ function createRecipeCard(r,i){
  var desc=document.createElement("p");desc.className="description";desc.textContent=r.description;body.appendChild(desc);
  var sh=document.createElement("div");sh.className="subhead";sh.textContent="INGREDIENTS / 配方";body.appendChild(sh);
  var ul=document.createElement("ul");ul.className="ingredient-list";
- r.parts.forEach(function(p){var li=document.createElement("li"),a=document.createElement("span"),b=document.createElement("span");a.textContent=p.name;b.textContent=p.ml+" ml";li.appendChild(a);li.appendChild(b);ul.appendChild(li)});
+ r.parts.forEach(function(p){var li=document.createElement("li"),a=document.createElement("span"),b=document.createElement("span");a.textContent=p.name;b.textContent=amountLabel(p);li.appendChild(a);li.appendChild(b);ul.appendChild(li)});
  if(r.hasIce){var li2=document.createElement("li"),a2=document.createElement("span"),b2=document.createElement("span");a2.textContent="冰块";b2.textContent="适量";li2.appendChild(a2);li2.appendChild(b2);ul.appendChild(li2)}
  body.appendChild(ul);
  var stephead=document.createElement("div");stephead.className="subhead";stephead.style.marginTop="14px";stephead.textContent="HOW TO MAKE / 做法";body.appendChild(stephead);
@@ -249,26 +246,25 @@ function createRecipeCard(r,i){
 }
 function makeButton(label,action,index,primary){var b=document.createElement("button");b.className="btn-mini"+(primary?" primary":"");b.type="button";b.textContent=label;b.dataset.action=action;b.dataset.index=String(index);return b}
 function recipeText(r){
- var p=r.parts.map(function(x){return x.name+" "+x.ml+" ml"}).join("；");
+ var p=r.parts.map(function(x){return x.name+" "+amountLabel(x)}).join("；");
  var abv=r.alcohol?"\n估算酒精度："+(r.abv===null?"无法估算":(r.abv*100).toFixed(1)+"% ABV")+"（估算值）":"\n酒精度：0% ABV";
  return "随调 SipSpark｜"+r.name+" · "+r.en+"\n"+r.description+"\n配方："+p+(r.hasIce?"；冰块适量":"")+"\n做法："+r.steps.map(function(x,i){return (i+1)+". "+x}).join("\n")+abv+"\n随心而调，灵感自来。";
 }
 function makePosterSVG(r,index){
  var colors=[["#f3d5ca","#ca8878","#9d5d54"],["#e0e7d8","#9aaa91","#687b62"],["#f2dfb6","#d6a95f","#a96f3a"]];
- var c=colors[index%colors.length],title=esc(r.name),english=esc(r.en),description=esc(r.description),first=esc(r.parts.map(function(p){return p.name+" "+p.ml+"ml"}).join(" · "));
+ var c=colors[index%colors.length],title=esc(r.name),english=esc(r.en),description=esc(r.description),first=esc(r.parts.map(function(p){return p.name+" "+amountLabel(p)}).join(" · "));
  var percent=r.alcohol?(r.abv===null?"含酒精 · 度数未知":"约 "+(r.abv*100).toFixed(1)+"% ABV"):"0% ALCOHOL";
  var glassFill=c[1];
  return '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F2EEE6"/><stop offset="1" stop-color="'+c[0]+'"/></linearGradient><linearGradient id="drink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+c[0]+'"/><stop offset=".55" stop-color="'+glassFill+'"/><stop offset="1" stop-color="'+c[2]+'"/></linearGradient><linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#fff" stop-opacity=".82"/><stop offset=".5" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity=".64"/></linearGradient></defs><rect width="1080" height="1350" fill="url(#bg)"/><circle cx="846" cy="258" r="225" fill="#F7E9CE" opacity=".7"/><circle cx="200" cy="610" r="150" fill="#fff" opacity=".24"/><path d="M0 770 Q280 690 520 788 T1080 740 V1350 H0Z" fill="#292D2A" opacity=".045"/><text x="75" y="86" font-family="Arial,sans-serif" font-size="22" letter-spacing="6" fill="#79776F">SIPSPARK / A SMALL SIP. A QUIET SPARK.</text><path d="M82 120 H998" stroke="#D8D0C4" stroke-width="2"/><g transform="translate(540 445)"><ellipse cx="0" cy="280" rx="215" ry="34" fill="#51473D" opacity=".1"/><path d="M-166 -152 L166 -152 L125 208 Q120 244 85 250 H-85 Q-120 244 -125 208 Z" fill="url(#glass)" stroke="#fff" stroke-opacity=".9" stroke-width="7"/><path d="M-152 -63 L152 -63 L118 203 Q113 230 82 232 H-82 Q-113 230 -118 203 Z" fill="url(#drink)" opacity=".96"/><path d="M-152 -63 Q0 -41 152 -63" fill="none" stroke="#fff" stroke-opacity=".88" stroke-width="5"/><path d="M-121 -45 L-91 190" stroke="#fff" stroke-opacity=".4" stroke-width="10" stroke-linecap="round"/><circle cx="-35" cy="40" r="10" fill="#fff" opacity=".6"/><circle cx="51" cy="94" r="7" fill="#fff" opacity=".55"/><circle cx="12" cy="158" r="5" fill="#fff" opacity=".45"/><g transform="translate(94 -87) rotate(-15)"><circle r="70" fill="#F6E4BB" stroke="#fff8e8" stroke-width="10"/><circle r="54" fill="'+c[1]+'"/><circle r="13" fill="#F7E9CE"/><path d="M0 -53 V53 M-53 0 H53 M-38 -38 L38 38 M38 -38 L-38 38" stroke="#F8EACB" stroke-width="7"/></g><path d="M-167 -152 Q0 -174 167 -152" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/></g><text x="75" y="828" font-family="Georgia,serif" font-style="italic" font-size="29" letter-spacing="2" fill="'+c[2]+'">'+english+'</text><text x="72" y="910" font-family="Songti SC,STSong,serif" font-size="76" fill="#292D2A">'+title+'</text><text x="76" y="970" font-family="Arial,sans-serif" font-size="24" fill="#69675F">'+description.slice(0,30)+'</text><path d="M78 1020 H1002" stroke="#D8D0C4" stroke-width="2"/><text x="78" y="1068" font-family="Arial,sans-serif" font-size="18" letter-spacing="4" fill="#79776F">YOUR MIX / 配方灵感</text><text x="78" y="1110" font-family="Arial,sans-serif" font-size="24" fill="#292D2A">'+first.slice(0,48)+'</text><text x="78" y="1168" font-family="Arial,sans-serif" font-size="21" fill="#79776F">'+percent+'</text><text x="78" y="1270" font-family="Songti SC,STSong,serif" font-size="29" fill="#292D2A">随心而调，灵感自来。</text><text x="1000" y="1270" text-anchor="end" font-family="Georgia,serif" font-style="italic" font-size="27" fill="'+c[2]+'">随调 SipSpark</text><text x="80" y="1310" font-family="Arial,sans-serif" font-size="15" letter-spacing="2" fill="#79776F">MIX WHAT YOU HAVE. CREATE WHAT YOU FEEL.</text></svg>';
 }
 function svgBlob(r,index){return new Blob([makePosterSVG(r,index)],{type:"image/svg+xml;charset=utf-8"})}
 function openImage(index){
- selectedRecipe=recipes[index];if(!selectedRecipe)return;
+ selectedRecipe=recipes[index];if(!selectedRecipe)return;aiImageData="";
  var blob=svgBlob(selectedRecipe,index);if(svgUrl)URL.revokeObjectURL(svgUrl);svgUrl=URL.createObjectURL(blob);
  document.getElementById("poster-preview").src=svgUrl;
  document.getElementById("modal-drink-name").textContent=selectedRecipe.name+" · "+selectedRecipe.en;
- document.getElementById("image-modal").classList.add("open");
- document.body.style.overflow="hidden";
- document.getElementById("close-modal").focus();
+ document.getElementById("ai-image-status").textContent="已准备品牌风格分享卡。点击“生成 AI 写实图”后，将按本款配方生成真实饮品照片。";
+ document.getElementById("image-modal").classList.add("open");document.body.style.overflow="hidden";document.getElementById("close-modal").focus();
 }
 function closeModal(){document.getElementById("image-modal").classList.remove("open");document.body.style.overflow="";if(svgUrl){URL.revokeObjectURL(svgUrl);svgUrl=""}}
 function svgToPng(r,index){
@@ -283,11 +279,14 @@ function copyText(text){
  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
  return new Promise(function(resolve,reject){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();ok?resolve():reject(new Error("当前浏览器不支持自动复制"))});
 }
+async function shareImageBlob(r,index){if(aiImageData&&selectedRecipe===r)return await makePhotoShareCard(r,index,aiImageData);return await svgToPng(r,index)}
+function makePhotoShareCard(r,index,dataUrl){return new Promise(function(resolve,reject){var image=new Image();image.onload=function(){try{var canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;var ctx=canvas.getContext("2d");ctx.fillStyle="#F2EEE6";ctx.fillRect(0,0,1080,1350);ctx.fillStyle="#79776F";ctx.font="22px Arial,sans-serif";ctx.fillText("SIPSPARK / A SMALL SIP. A QUIET SPARK.",72,72);ctx.strokeStyle="#D8D0C4";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(72,105);ctx.lineTo(1008,105);ctx.stroke();var x=72,y=140,w=936,h=660,ratio=Math.max(w/image.width,h/image.height),sw=w/ratio,sh=h/ratio,sx=(image.width-sw)/2,sy=(image.height-sh)/2;ctx.save();ctx.beginPath();ctx.moveTo(x+24,y);ctx.arcTo(x+w,y,x+w,y+h,24);ctx.arcTo(x+w,y+h,x,y+h,24);ctx.arcTo(x,y+h,x,y,24);ctx.arcTo(x,y,x+w,y,24);ctx.closePath();ctx.clip();ctx.drawImage(image,sx,sy,sw,sh,x,y,w,h);ctx.restore();ctx.fillStyle="#A96F61";ctx.font="italic 27px Georgia,serif";ctx.fillText(String(r.en||"SipSpark").slice(0,48),76,855);ctx.fillStyle="#292D2A";ctx.font="54px Songti SC,STSong,serif";ctx.fillText(String(r.name||"随调作品").slice(0,16),72,930);ctx.fillStyle="#69675F";ctx.font="23px Arial,sans-serif";ctx.fillText(String(r.description||"").slice(0,54),76,978);ctx.strokeStyle="#D8D0C4";ctx.beginPath();ctx.moveTo(72,1014);ctx.lineTo(1008,1014);ctx.stroke();ctx.fillStyle="#79776F";ctx.font="18px Arial,sans-serif";ctx.fillText("YOUR MIX / 配方灵感",76,1058);ctx.fillStyle="#292D2A";ctx.font="21px Arial,sans-serif";ctx.fillText(String(r.parts.map(function(p){return p.name+" "+amountLabel(p)}).join(" · ")).slice(0,50),76,1103);ctx.fillStyle="#8B6558";ctx.font="20px Arial,sans-serif";ctx.fillText(r.alcohol?(r.abv===null?"含酒精 · 度数需核对":"约 "+(r.abv*100).toFixed(1)+"% ABV"):"0% ALCOHOL",76,1150);ctx.fillStyle="#292D2A";ctx.font="30px Songti SC,STSong,serif";ctx.fillText("随心而调，灵感自来。",76,1250);ctx.fillStyle="#A96F61";ctx.font="italic 26px Georgia,serif";ctx.textAlign="right";ctx.fillText("随调 SipSpark",1005,1250);ctx.textAlign="left";ctx.fillStyle="#79776F";ctx.font="15px Arial,sans-serif";ctx.fillText("MIX WHAT YOU HAVE. CREATE WHAT YOU FEEL.",78,1305);canvas.toBlob(function(blob){if(blob)resolve(blob);else reject(new Error("分享图片合成失败"))},"image/png")}catch(e){reject(e)}};image.onerror=function(){reject(new Error("无法读取 AI 图片"))};image.src=dataUrl})}
+async function generateAIImage(){if(!selectedRecipe)return;var btn=document.getElementById("generate-ai-image"),status=document.getElementById("ai-image-status"),old=btn.textContent;btn.disabled=true;btn.textContent="正在生成写实饮品图…";status.textContent="正在调用 AI 图片模型；若失败仍可下载品牌插画卡。";try{var response=await fetch(AI_API+"/api/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:selectedRecipe.name,description:selectedRecipe.description,ingredients:selectedRecipe.parts.map(function(p){return p.name+" "+amountLabel(p)}).join("、"),mood:mood})});var payload=await response.json();if(!response.ok)throw new Error(payload.error||"AI 图片服务暂不可用");var raw=String(payload.image||"");if(!raw)throw new Error("图片服务没有返回图像");aiImageData=raw.indexOf("data:image")===0?raw:"data:"+(payload.mimeType||"image/png")+";base64,"+raw;document.getElementById("poster-preview").src=aiImageData;status.textContent="AI 写实图已生成。下载或分享时，会将照片、作品名与配方文字排成一张品牌分享卡。";toast("AI 饮品图已生成")}catch(e){aiImageData="";status.textContent="AI 写实图暂不可用："+(e.message||"请稍后重试")+"。仍可使用品牌风格分享卡。";toast("暂时无法生成 AI 写实图")}finally{btn.disabled=false;btn.textContent=old}}
 async function shareRecipe(r,index,withImage){
  var text=recipeText(r);
  try{
   if(withImage){
-   var png=await svgToPng(r,index),file=new File([png], "SipSpark-"+r.name+".png",{type:"image/png"});
+   var png=await shareImageBlob(r,index),file=new File([png], "SipSpark-"+r.name+".png",{type:"image/png"});
    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"随调 SipSpark · "+r.name,text:text,files:[file]});toast("分享面板已打开");return}
    downloadBlob(png,"SipSpark-"+r.name+".png");
    try{await copyText(text);toast("图片已下载，配方文字也已复制，可直接分享")}catch(e){toast("图片已下载；可长按复制配方文字")}
@@ -297,7 +296,7 @@ async function shareRecipe(r,index,withImage){
   await copyText(text);toast("配方已复制，粘贴到聊天或社交平台即可分享");
  }catch(e){if(e&&e.name==="AbortError")return;toast(e&&e.message?e.message:"分享失败，请重试")}
 }
-document.getElementById("generate").addEventListener("click",render);
+document.getElementById("generate").addEventListener("click",function(){generateWithAI(true)});
 document.getElementById("ingredients").addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key==="Enter")render()});
 document.querySelectorAll("[data-example]").forEach(function(b){b.addEventListener("click",function(){document.getElementById("ingredients").value=b.getAttribute("data-example");document.querySelectorAll("[data-example]").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById("ingredients").focus()})});
 document.querySelectorAll("[data-mood]").forEach(function(b){b.addEventListener("click",function(){mood=b.getAttribute("data-mood");document.querySelectorAll("[data-mood]").forEach(function(x){var active=x===b;x.classList.toggle("active",active);x.setAttribute("aria-pressed",active?"true":"false")})})});
@@ -305,7 +304,8 @@ document.getElementById("results-grid").addEventListener("click",function(e){var
 document.getElementById("close-modal").addEventListener("click",closeModal);
 document.getElementById("image-modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal()});
-document.getElementById("download-poster").addEventListener("click",async function(){if(!selectedRecipe)return;try{var idx=recipes.indexOf(selectedRecipe),png=await svgToPng(selectedRecipe,idx);downloadBlob(png,"SipSpark-"+selectedRecipe.name+".png");toast("分享配图已保存")}catch(e){toast(e.message||"下载失败")}});
+document.getElementById("generate-ai-image").addEventListener("click",generateAIImage);
+document.getElementById("download-poster").addEventListener("click",async function(){if(!selectedRecipe)return;try{var idx=recipes.indexOf(selectedRecipe),png=await shareImageBlob(selectedRecipe,idx);downloadBlob(png,"SipSpark-"+selectedRecipe.name+".png");toast("分享配图已保存")}catch(e){toast(e.message||"下载失败")}});
 document.getElementById("share-poster").addEventListener("click",function(){if(selectedRecipe)shareRecipe(selectedRecipe,recipes.indexOf(selectedRecipe),true)});
 document.getElementById("copy-poster-text").addEventListener("click",function(){if(selectedRecipe)copyText(recipeText(selectedRecipe)).then(function(){toast("配方文字已复制")}).catch(function(){toast("复制失败")})});
 document.getElementById("image-modal").addEventListener("transitionend",function(){});
