@@ -30,9 +30,9 @@ function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIn
 function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
 const englishByGroup=['Sauvignon Blanc','White Wine','Pomelo Honeysuckle Juice','Honeysuckle Juice','Grapefruit Juice','Grapefruit','Honeysuckle','Cranberry Juice','Cranberry','Orange Juice','Orange','Apple Juice','Apple','Peach Juice','Peach','Pineapple Juice','Pineapple','Lemon Juice','Lime Juice','Lemon','Lime','Oolong Tea','Jasmine Tea','Green Tea','Black Tea','Cold Brew Tea','Tea','Iced Americano','Americano','Iced Coffee','Coffee','Espresso','Milk','Oat Milk','Coconut Water','Coconut Milk','Yogurt','Sparkling Water','Tonic Water','Cola','Lemon-Lime Soda','Ginger Beer','Ice','Mineral Water','Purified Water','Water','Vodka','Gin','Rum','Whisky','Tequila','Sparkling Wine','Red Wine','Rosé Wine','Sake','Soju','Plum Wine','Beer','Baijiu'];
 function safeEnglishName(name,clean,allowedGroups,index){
- const candidate=String(name||'').trim().replace(/\\s+/g,' ').slice(0,48);
+ const candidate=String(name||'').trim().replace(/\s+/g,' ').slice(0,48);
  let safe=Boolean(candidate)&&candidate.length>=2;
- const normCandidate=normalize(candidate);
+ const candidateTokens=candidate.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
  if(safe){
   for(let groupId=0;groupId<aliasGroups.length;groupId++){
    if(allowedGroups.has(groupId))continue;
@@ -40,15 +40,17 @@ function safeEnglishName(name,clean,allowedGroups,index){
     const value=String(alias||'').trim();
     if(!value)continue;
     if(/^[a-z ]+$/i.test(value)){
-     const escaped=value.split(/\\s+/).map(word=>word.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\function safeEnglishName(name,clean,allowedGroups,index){
- const used=[];
- clean.forEach(item=>{if(!isIce(item.name)&&!used.includes(item.group))used.push(item.group)});
- const words=used.map(group=>englishByGroup[group]).filter(Boolean);
- if(!words.length)words.push('SipSpark');
- return words.join(' ')+' '+['Breeze','Cloudline','Sunlit Mix'][index%3];
-}')).join('\\\\s+');
-     if(new RegExp('\\\\b'+escaped+'\\\\b','i').test(candidate)){safe=false;break}
-    }else if(normCandidate.indexOf(normalize(value))>=0){safe=false;break}
+     const tokens=value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+     if(!tokens.length)continue;
+     for(let offset=0;offset<=candidateTokens.length-tokens.length;offset++){
+      let match=true;
+      for(let j=0;j<tokens.length;j++){
+       if(candidateTokens[offset+j]!==tokens[j]){match=false;break}
+      }
+      if(match){safe=false;break}
+     }
+    }else if(candidate.indexOf(value)>=0){safe=false}
+    if(!safe)break;
    }
    if(!safe)break;
   }
