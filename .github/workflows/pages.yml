@@ -38,7 +38,8 @@ jobs:
           with open('/tmp/sipspark-app.js','w',encoding='utf-8') as f: f.write('\n'.join(parser.scripts))
           PY
           node --check /tmp/sipspark-app.js
-          node --check worker/index.js
+          cp worker/index.js /tmp/sipspark-worker.mjs
+          node --check /tmp/sipspark-worker.mjs
       - name: Verify AI Worker health
         run: |
           curl --fail --silent --show-error --retry 5 --retry-delay 2 https://sipspark-ai.chenzhe223.workers.dev/health -o /tmp/sipspark-health.json
@@ -49,6 +50,27 @@ jobs:
           if not data.get('ok') or data.get('service') != 'SipSpark AI':
               raise SystemExit('SipSpark AI Worker health check failed')
           print('SipSpark AI Worker is reachable')
+          PY
+      - name: Smoke-test AI recipe generation
+        run: |
+          curl --fail --silent --show-error --retry 2 --retry-delay 2 -X POST https://sipspark-ai.chenzhe223.workers.dev/api/mix -H 'Content-Type: application/json' --data '{"ingredients":"红柚金银花果汁、长相思、冰块；只有杯子，不额外购买材料。","mood":"清爽微醺"}' -o /tmp/sipspark-mix.json
+          python3 - <<'PY'
+          import json
+          with open('/tmp/sipspark-mix.json', encoding='utf-8') as f:
+              data=json.load(f)
+          recipes=data.get('recipes')
+          if not isinstance(recipes,list) or len(recipes)<3:
+              raise SystemExit('AI endpoint did not return at least three recipes: '+str(data.get('error','unknown error')))
+          allowed=('红柚金银花果汁','长相思','冰块')
+          for recipe in recipes[:3]:
+              ingredients=recipe.get('ingredients',[])
+              if not ingredients:
+                  raise SystemExit('AI returned a recipe without ingredients')
+              for item in ingredients:
+                  name=item.get('name','')
+                  if not any(token in name or name in token for token in allowed):
+                      raise SystemExit('AI returned an ingredient outside this smoke-test set: '+name)
+          print('AI recipe endpoint returned three ingredient-validated recipes')
           PY
       - name: Prepare static site
         run: |
