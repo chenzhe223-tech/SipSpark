@@ -30,11 +30,31 @@ function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIn
 function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
 const englishByGroup=['Sauvignon Blanc','White Wine','Pomelo Honeysuckle Juice','Honeysuckle Juice','Grapefruit Juice','Grapefruit','Honeysuckle','Cranberry Juice','Cranberry','Orange Juice','Orange','Apple Juice','Apple','Peach Juice','Peach','Pineapple Juice','Pineapple','Lemon Juice','Lime Juice','Lemon','Lime','Oolong Tea','Jasmine Tea','Green Tea','Black Tea','Cold Brew Tea','Tea','Iced Americano','Americano','Iced Coffee','Coffee','Espresso','Milk','Oat Milk','Coconut Water','Coconut Milk','Yogurt','Sparkling Water','Tonic Water','Cola','Lemon-Lime Soda','Ginger Beer','Ice','Mineral Water','Purified Water','Water','Vodka','Gin','Rum','Whisky','Tequila','Sparkling Wine','Red Wine','Rosé Wine','Sake','Soju','Plum Wine','Beer','Baijiu'];
 function safeEnglishName(name,clean,allowedGroups,index){
+ const candidate=String(name||'').trim().replace(/\\s+/g,' ').slice(0,48);
+ let safe=Boolean(candidate)&&candidate.length>=2;
+ const normCandidate=normalize(candidate);
+ if(safe){
+  for(let groupId=0;groupId<aliasGroups.length;groupId++){
+   if(allowedGroups.has(groupId))continue;
+   for(const alias of aliasGroups[groupId]){
+    const value=String(alias||'').trim();
+    if(!value)continue;
+    if(/^[a-z ]+$/i.test(value)){
+     const escaped=value.split(/\\s+/).map(word=>word.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\function safeEnglishName(name,clean,allowedGroups,index){
  const used=[];
  clean.forEach(item=>{if(!isIce(item.name)&&!used.includes(item.group))used.push(item.group)});
  const words=used.map(group=>englishByGroup[group]).filter(Boolean);
  if(!words.length)words.push('SipSpark');
  return words.join(' ')+' '+['Breeze','Cloudline','Sunlit Mix'][index%3];
+}')).join('\\\\s+');
+     if(new RegExp('\\\\b'+escaped+'\\\\b','i').test(candidate)){safe=false;break}
+    }else if(normCandidate.indexOf(normalize(value))>=0){safe=false;break}
+   }
+   if(!safe)break;
+  }
+ }
+ if(safe)return candidate;
+ return ['Cloudline','Soft Hour','Quiet Spark'][index%3];
 }
 function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
 function isIce(name){const n=normalize(name);return n.indexOf('冰块')>=0||n==='冰'||n.indexOf('ice')>=0}
