@@ -26,7 +26,7 @@
 - `index.html`：品牌理念与视觉识别看板。
 - `app.html`：即兴调饮轻应用及分享卡编辑体验。
 - `moments.html`：生活场景图文。
-- `worker/index.js`：Cloudflare Worker 后端，提供 `/api/mix` 和 `/api/image`。文本模型为 `@cf/meta/llama-3.1-8b-instruct`；写实配图使用 `@cf/black-forest-labs/flux-1-schnell`。
+- `worker/index.js`：Cloudflare Worker 后端，提供 `/api/mix` 和 `/api/image`。文本模型为 `@cf/meta/llama-3.2-3b-instruct`；写实配图使用 `@cf/black-forest-labs/flux-1-schnell`。
 - `.github/workflows/pages.yml`：发布前检查前端与 Worker 的 JavaScript 语法、验证 AI Worker 健康状态和生成配方接口，再发布品牌页、应用页与图文图库。
 
 后端 AI 模型通过 Worker 的 AI binding 调用，浏览器代码和公开 GitHub 仓库不包含 Cloudflare API token 或第三方模型密钥。Worker 仅允许来自 GitHub Pages 站点的浏览器 Origin，并对公开接口限制请求频率和输入长度。
