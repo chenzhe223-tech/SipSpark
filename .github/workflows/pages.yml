@@ -55,7 +55,14 @@ jobs:
         continue-on-error: true
         timeout-minutes: 2
         run: |
-          curl --fail --silent --show-error --max-time 70 --retry 1 --retry-delay 2 -X POST https://sipspark-ai.chenzhe223.workers.dev/api/mix -H 'Content-Type: application/json' --data '{"ingredients":"红柚金银花果汁、长相思、冰块；只有杯子，不额外购买材料。","mood":"清爽微醺"}' -o /tmp/sipspark-mix.json
+          set +e
+          status=$(curl --silent --show-error --max-time 70 --retry 1 --retry-delay 2 -w '%{http_code}' -X POST https://sipspark-ai.chenzhe223.workers.dev/api/mix -H 'Content-Type: application/json' --data '{"ingredients":"红柚金银花果汁、长相思、冰块；只有杯子，不额外购买材料。","mood":"清爽微醺"}' -o /tmp/sipspark-mix.json)
+          curl_status=$?
+          set -e
+          echo "AI recipe endpoint HTTP status: ${status:-curl-error}"
+          echo "AI recipe endpoint response:"
+          cat /tmp/sipspark-mix.json || true
+          if [ "$curl_status" -ne 0 ]; then exit "$curl_status"; fi
           python3 - <<'PY'
           import json
           with open('/tmp/sipspark-mix.json', encoding='utf-8') as f:
