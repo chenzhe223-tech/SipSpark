@@ -195,7 +195,7 @@ function makeRecipe(name,en,tag,parts,steps,desc,hasIce,primaryAlcohol){
  var moodLine=mood==="无酒精特调"?"无酒精":(abv!==null?"约"+(abv*100).toFixed(1)+"% ABV":"即兴创作");
  return {name:name,en:en,tag:tag,parts:items,steps:steps,description:desc,abv:abv,total:total,hasIce:hasIce,moodLine:moodLine,primaryAlcohol:primaryAlcohol?primaryAlcohol.name:"",alcohol:parts.some(function(p){return p.item.group==="alcohol"})};
 }
-function render(){
+function render(shouldScroll){
  var text=document.getElementById("ingredients").value.trim();
  clearStatus();
  var result=buildRecipes(text,mood);
@@ -203,7 +203,7 @@ function render(){
   document.getElementById("results-grid").innerHTML="";
   document.getElementById("result-summary").textContent="还需要一点具体材料，才能把想法变成可制作的配方。";
   setStatus(result.error,true);
-  document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+  if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
   return;
  }
  recipes=result.recipes;
@@ -211,7 +211,7 @@ function render(){
  grid.innerHTML="";
  recipes.forEach(function(r,i){grid.appendChild(createRecipeCard(r,i))});
  document.getElementById("result-summary").textContent="根据你输入的材料与“"+mood+"”偏好，给出 "+recipes.length+" 款变化。每款仅使用列出的材料；冰块只在你提到时才作为已有材料。";
- document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
+ if(shouldScroll)document.getElementById("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function createRecipeCard(r,i){
  var article=document.createElement("article");article.className="mix-card";
