@@ -1,0 +1,170 @@
+const SITE_ORIGIN='https://davylab.github.io';
+const TEXT_MODEL='@cf/meta/llama-3.2-3b-instruct';
+const IMAGE_MODEL='@cf/black-forest-labs/flux-1-schnell';
+const counters=new Map();
+const aliasGroups=[
+['长相思','长相思白葡萄酒','sauvignon blanc','sauvignon'],['白葡萄酒','white wine'],
+['红柚金银花果汁','红柚金银花汁','葡萄柚金银花果汁'],
+['金银花果汁','honeysuckle juice'],['西柚汁','葡萄柚汁','红柚汁','grapefruit juice','pink grapefruit juice'],
+['红柚','西柚','葡萄柚','grapefruit'],['金银花','金银花花材','honeysuckle flower'],
+['蔓越莓汁','cranberry juice'],['蔓越莓','cranberry','cranberries'],
+['橙汁','orange juice'],['橙子','橙','orange'],
+['苹果汁','apple juice'],['苹果','apple'],
+['白桃汁','桃汁','桃子汁','peach juice'],['桃子','桃','peach'],
+['菠萝汁','凤梨汁','pineapple juice'],['菠萝','凤梨','pineapple'],
+['柠檬汁','lemon juice'],['青柠汁','lime juice'],['柠檬','lemon'],['青柠','lime'],
+['乌龙茶','冷泡乌龙','oolong tea'],['茉莉花茶','茉莉茶','jasmine tea'],['绿茶','green tea'],['红茶','black tea'],['冷泡茶','cold brew tea'],['茶','tea'],
+['冰美式','iced americano'],['美式咖啡','americano'],['冰咖啡','iced coffee'],['咖啡','coffee'],['浓缩咖啡','espresso'],
+['牛奶','鲜奶','milk'],['燕麦奶','oat milk'],['椰子水','coconut water'],['椰奶','椰浆','coconut milk'],['酸奶','yogurt'],
+['苏打水','气泡水','sparkling water','club soda','soda water'],['汤力水','tonic water'],['可乐','cola'],['雪碧','柠檬汽水','lemon-lime soda'],['姜汁汽水','ginger beer'],
+['冰块','冰','ice cubes','ice'],['矿泉水','mineral water'],['纯净水','purified water'],['水','water'],
+['伏特加','vodka'],['金酒','gin'],['朗姆酒','rum'],['威士忌','whisky','whiskey'],['龙舌兰','tequila'],
+['起泡酒','香槟','prosecco','champagne','sparkling wine'],['红葡萄酒','红酒','red wine'],['桃红葡萄酒','桃红酒','rose wine'],
+['清酒','sake'],['烧酒','soju'],['梅酒','plum wine'],['啤酒','beer'],['白酒','baijiu']
+];
+function normalize(s){return String(s||'').toLowerCase().replace(/\s+/g,'').replace(/[，。；、,.!?！？:：\-_]/g,'')}
+function json(data,status,origin,extra){const h=new Headers({'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'});if(origin===SITE_ORIGIN)h.set('access-control-allow-origin',SITE_ORIGIN);h.set('vary','Origin');h.set('access-control-allow-methods','GET, POST, OPTIONS');h.set('access-control-allow-headers','Content-Type');h.set('access-control-max-age','86400');if(extra)Object.keys(extra).forEach(k=>h.set(k,extra[k]));return new Response(JSON.stringify(data),{status:status||200,headers:h})}
+function matchedMaterials(input){const t=normalize(input),hits=[];aliasGroups.forEach((group,groupId)=>group.forEach(alias=>{const token=normalize(alias);if(!token)return;let from=0,at;while((at=t.indexOf(token,from))!==-1){hits.push({start:at,end:at+token.length,length:token.length,groupId:groupId});from=at+1}}));hits.sort((a,b)=>b.length-a.length||a.start-b.start);const selected=[];for(const hit of hits){if(!selected.some(x=>hit.start<x.end&&hit.end>x.start))selected.push(hit)}selected.sort((a,b)=>a.start-b.start);const groups=new Set(),out=[];for(const hit of selected){if(groups.has(hit.groupId))continue;groups.add(hit.groupId);out.push({groupId:hit.groupId,name:aliasGroups[hit.groupId][0]})}return out}
+function mentionedGroups(input){return new Set(matchedMaterials(input).map(x=>x.groupId))}
+function ingredientGroup(name){const n=normalize(name);return aliasGroups.findIndex(group=>group.some(alias=>normalize(alias)===n))}
+function listed(name,input){const group=ingredientGroup(name);return group>=0&&mentionedGroups(input).has(group)}
+const englishByGroup=['Sauvignon Blanc','White Wine','Pomelo Honeysuckle Juice','Honeysuckle Juice','Grapefruit Juice','Grapefruit','Honeysuckle','Cranberry Juice','Cranberry','Orange Juice','Orange','Apple Juice','Apple','Peach Juice','Peach','Pineapple Juice','Pineapple','Lemon Juice','Lime Juice','Lemon','Lime','Oolong Tea','Jasmine Tea','Green Tea','Black Tea','Cold Brew Tea','Tea','Iced Americano','Americano','Iced Coffee','Coffee','Espresso','Milk','Oat Milk','Coconut Water','Coconut Milk','Yogurt','Sparkling Water','Tonic Water','Cola','Lemon-Lime Soda','Ginger Beer','Ice','Mineral Water','Purified Water','Water','Vodka','Gin','Rum','Whisky','Tequila','Sparkling Wine','Red Wine','Rosé Wine','Sake','Soju','Plum Wine','Beer','Baijiu'];
+function safeEnglishName(name,clean,allowedGroups,index){
+ const candidate=String(name||'').trim().replace(/\s+/g,' ').slice(0,48);
+ let safe=Boolean(candidate)&&candidate.length>=2;
+ const candidateTokens=candidate.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+ if(safe){
+  for(let groupId=0;groupId<aliasGroups.length;groupId++){
+   if(allowedGroups.has(groupId))continue;
+   for(const alias of aliasGroups[groupId]){
+    const value=String(alias||'').trim();
+    if(!value)continue;
+    if(/^[a-z ]+$/i.test(value)){
+     const tokens=value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+     if(!tokens.length)continue;
+     for(let offset=0;offset<=candidateTokens.length-tokens.length;offset++){
+      let match=true;
+      for(let j=0;j<tokens.length;j++){
+       if(candidateTokens[offset+j]!==tokens[j]){match=false;break}
+      }
+      if(match){safe=false;break}
+     }
+    }else if(candidate.indexOf(value)>=0){safe=false}
+    if(!safe)break;
+   }
+   if(!safe)break;
+  }
+ }
+ if(safe)return candidate;
+ return ['Cloudline','Soft Hour','Quiet Spark'][index%3];
+}
+function alcoholStrength(name){const n=normalize(name);const data=[{keys:['长相思','白葡萄酒','sauvignonblanc','sauvignon'],abv:.125},{keys:['起泡酒','香槟','prosecco','champagne','sparklingwine'],abv:.12},{keys:['红葡萄酒','红酒','redwine'],abv:.13},{keys:['桃红葡萄酒','桃红酒','rosewine'],abv:.12},{keys:['金酒','gin','伏特加','vodka','朗姆酒','rum','威士忌','whisky','whiskey','龙舌兰','tequila','白酒','baijiu'],abv:.4},{keys:['清酒','sake'],abv:.15},{keys:['烧酒','soju'],abv:.17},{keys:['梅酒','plumwine'],abv:.12},{keys:['啤酒','beer'],abv:.05}];for(const group of data){if(group.keys.some(k=>n===normalize(k)||n.indexOf(normalize(k))>=0))return group.abv}return null}
+function isIce(name){const n=normalize(name);return n.indexOf('冰块')>=0||n==='冰'||n.indexOf('ice')>=0}
+function buildSafeSteps(clean){
+ const liquids=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
+ const hasIce=clean.some(it=>isIce(it.name));
+ const steps=[];
+ if(liquids.length)steps.push('将'+liquids.map(it=>it.name+' '+it.amountMl+' ml').join('、')+'依次倒入杯中。');
+ if(hasIce)steps.push('加入适量冰块。');
+ steps.push('用杯子轻轻转动混合即可。');
+ steps.push('先小口尝试；下次可按口味微调现有材料比例。');
+ return steps.slice(0,4);
+}
+function rateLimit(req,image){const ip=req.headers.get('CF-Connecting-IP')||'unknown',now=Date.now();let r=counters.get(ip);if(!r||now-r.start>60000)r={start:now,count:0,images:0};r.count++;if(image)r.images++;counters.set(ip,r);if(counters.size>5000){for(const [k,v] of counters){if(now-v.start>120000)counters.delete(k);if(counters.size<=3500)break}}return {ok:r.count<=(image?5:10)&&(!image||r.images<=2),retry:Math.max(1,Math.ceil((60000-(now-r.start))/1000))}}
+function extract(r){if(typeof r==='string')return r;if(r&&typeof r.response==='string')return r.response;if(r&&r.response&&typeof r.response==='object')return JSON.stringify(r.response);if(r&&typeof r.output_text==='string')return r.output_text;if(r&&Array.isArray(r.choices)&&r.choices[0]&&r.choices[0].message)return r.choices[0].message.content;return ''}
+function parseObject(s){
+ let t=String(s||'').trim(),f=String.fromCharCode(96).repeat(3);
+ if(t.startsWith(f)){t=t.slice(f.length);if(t.startsWith('json'))t=t.slice(4);t=t.trim();if(t.endsWith(f))t=t.slice(0,-f.length).trim()}
+ let fallback=null;
+ for(let i=0;i<t.length;i++){
+  if(t[i]!=='{')continue;
+  let depth=0,inString=false,escape=false;
+  for(let j=i;j<t.length;j++){
+   const ch=t[j];
+   if(inString){if(escape){escape=false;continue}if(ch==='\\'){escape=true;continue}if(ch==='"')inString=false;continue}
+   if(ch==='"'){inString=true;continue}
+   if(ch==='{')depth++;else if(ch==='}')depth--;
+   if(depth===0){try{const obj=JSON.parse(t.slice(i,j+1));if(obj&&Array.isArray(obj.recipes)&&obj.recipes.length>=3)return obj;if(!fallback&&obj&&typeof obj==='object')fallback=obj}catch(e){}break}
+  }
+ }
+ if(fallback)return fallback;
+ throw new Error('invalid_json')
+}
+function validate(payload,input,mood){
+ if(!payload||!Array.isArray(payload.recipes)||payload.recipes.length<3)throw new Error('not enough recipes');
+ const allowedGroups=mentionedGroups(input);
+ const recognized=matchedMaterials(input);
+ const inputAlcohols=recognized.filter(item=>alcoholStrength(item.name)!==null);
+ const inputMixers=recognized.filter(item=>!isIce(item.name)&&alcoholStrength(item.name)===null);
+ const inputHasIce=recognized.some(item=>isIce(item.name));
+ const noAlcoholMode=/(无酒精|不含酒精|不喝酒|不要酒精|no\s*alcohol|mocktail)/i.test(String(mood||'')+' '+String(input||''));
+ const recipes=payload.recipes.slice(0,3).map((r,i)=>{
+  const name=String(r.name||r.chineseName||'').trim().slice(0,36);
+  const englishName=String(r.englishName||r.en||'').trim().slice(0,48);
+  const description=String(r.description||r.flavor||'').trim().slice(0,240);
+  const ingredients=Array.isArray(r.ingredients)?r.ingredients.slice(0,8):[];
+  if(!name||ingredients.length===0)throw new Error('incomplete recipe');
+  const clean=ingredients.map(it=>{
+   const iname=String(it.name||'').trim().slice(0,50);
+   const raw=it.amountMl!==undefined?it.amountMl:(it.amount_ml!==undefined?it.amount_ml:it.ml);
+   const amountMl=raw===null||raw===undefined?null:Number(raw);
+   const amount=String(it.amount||'').trim().slice(0,30);
+   if(!iname||(!Number.isFinite(amountMl)&&!amount))throw new Error('missing measure');
+   const group=ingredientGroup(iname);
+   if(group<0||!allowedGroups.has(group))throw new Error('unlisted ingredient: '+iname);
+   const finalMl=isIce(iname)?0:(Number.isFinite(amountMl)?Math.max(0,Math.min(500,amountMl)):null);
+   const finalAmount=isIce(iname)?'适量':(finalMl!==null?finalMl+' ml':(amount||null));
+   return {name:iname,amountMl:finalMl,amount:finalAmount,optional:isIce(iname)?false:Boolean(it.optional),group:group};
+  });
+  if(!noAlcoholMode&&inputAlcohols.length&&inputMixers.length){
+   const chosenAlcohol=inputAlcohols[0];
+   const chosenMixer=inputMixers[0];
+   if(!clean.some(it=>alcoholStrength(it.name)!==null)){
+    const strength=alcoholStrength(chosenAlcohol.name)||.12;
+    const amounts=strength>=.25?[20,25,30]:[30,45,60];
+    const amountMl=amounts[i];
+    clean.push({name:chosenAlcohol.name,amountMl:amountMl,amount:amountMl+' ml',optional:false,group:chosenAlcohol.groupId});
+   }
+   if(!clean.some(it=>!isIce(it.name)&&alcoholStrength(it.name)===null&&it.amountMl!==null&&it.amountMl>0)){
+    const amounts=[120,90,60],amountMl=amounts[i];
+    clean.push({name:chosenMixer.name,amountMl:amountMl,amount:amountMl+' ml',optional:false,group:chosenMixer.groupId});
+   }
+   if(inputHasIce&&i<2&&!clean.some(it=>isIce(it.name))){
+    const ice=recognized.find(item=>isIce(item.name));
+    if(ice)clean.push({name:ice.name,amountMl:0,amount:'适量',optional:false,group:ice.groupId});
+   }
+  }
+  if(!clean.some(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0))throw new Error('recipe has no liquid');
+  const alcoholParts=clean.map(it=>({item:it,strength:alcoholStrength(it.name)})).filter(x=>x.strength!==null);
+  if(noAlcoholMode&&alcoholParts.length)throw new Error('alcohol_not_allowed');
+  const steps=buildSafeSteps(clean);
+  const liquidParts=clean.filter(it=>!isIce(it.name)&&it.amountMl!==null&&it.amountMl>0);
+  const liquidVolume=liquidParts.reduce((sum,it)=>sum+it.amountMl,0);
+  const pureAlcohol=alcoholParts.reduce((sum,x)=>sum+(x.item.amountMl===null?0:x.item.amountMl*x.strength),0);
+  const canEstimate=alcoholParts.length>0&&alcoholParts.every(x=>x.item.amountMl!==null)&&liquidVolume>0;
+  const estimate=alcoholParts.length===0?0:(canEstimate?Math.max(0,Math.min(.96,pureAlcohol/liquidVolume)):null);
+  return {name:name,englishName:safeEnglishName(englishName,clean,allowedGroups,i),tag:String(r.tag||r.style||'即兴特调').trim().slice(0,24),description:description,ingredients:clean.map(({group,...x})=>x),steps:steps,flavor:String(r.flavor||description).trim().slice(0,240),adjustment:String(r.adjustment||r.tweak||'不新增材料，只按个人口味微调现有材料比例。').trim().slice(0,180),isAlcoholFree:alcoholParts.length===0,estimatedAbv:estimate,alcoholNote:alcoholParts.length?'酒精度为按常见基酒度数与液体体积估算，实际以瓶身标注为准。':''};
+ });
+ return {recipes:recipes,safetyNote:String(payload.safetyNote||'含酒精饮品请慢饮，不酒驾；未成年人及需要保持警觉时请选择真正的无酒精饮品。').slice(0,240),engine:'workers-ai'};
+}
+
+export default {async fetch(request,env){
+ const url=new URL(request.url),origin=request.headers.get('Origin')||'';
+ if(request.method==='OPTIONS'){if(origin&&origin!==SITE_ORIGIN)return new Response(null,{status:403});return json({ok:true},200,origin)}
+ if(origin&&origin!==SITE_ORIGIN)return json({error:'Origin not allowed'},403,'');
+ if(url.pathname==='/health'&&request.method==='GET')return json({ok:true,service:'SipSpark AI',textModel:TEXT_MODEL,imageModel:IMAGE_MODEL},200,origin);
+ const mix=url.pathname==='/api/mix',image=url.pathname==='/api/image';if(!mix&&!image)return json({error:'Not found'},404,origin);if((mix||image)&&origin!==SITE_ORIGIN)return json({error:'Only the SipSpark website can call this endpoint.'},403,'');if(request.method!=='POST')return json({error:'Method not allowed'},405,origin,{'allow':'POST, OPTIONS'});
+ const limit=rateLimit(request,image);if(!limit.ok)return json({error:'操作有点快，请稍等片刻再试。',retryAfter:limit.retry},429,origin,{'retry-after':String(limit.retry)});
+ const length=Number(request.headers.get('content-length')||0);if(length>12000)return json({error:'输入太长了，请精简后再试。'},413,origin);let body;try{body=await request.json()}catch(e){return json({error:'请提交有效的 JSON 内容。'},400,origin)}
+ if(mix){
+  const input=String(body.ingredients||body.text||'').trim(),mood=String(body.mood||'给我惊喜').slice(0,24);
+  if(input.length<2)return json({error:'先写下一两种手边材料吧。'},400,origin);if(input.length>1200)return json({error:'输入太长了，请精简到 1200 字以内。'},413,origin);
+  const system='你是随调 SipSpark 的即兴调饮师。只输出一次合法 JSON 对象，最后一个 } 后立刻停止，不输出 Markdown、解释或重复内容。可用材料清单是唯一允许使用的材料。不要将复合饮品拆成原料，不得假设额外材料或器具。请生成正好3款配方，比例、风味、标签和名字要有明显区别。若清单同时含酒精基酒与非酒精饮料，至少两款需同时使用酒精与非酒精液体；若清单含冰块，至少两款必须加入冰块且在步骤中实际加入，不能写“可选”或“如果使用”。用户选无酒精时，三款都必须真正无酒精。材料少时可调整已有材料比例。英文名需准确：长相思是 Sauvignon Blanc，金银花是 honeysuckle，不要误译为 ginseng。不要推荐冷冻、冷藏、隔夜浸泡、切碎、加热或需要额外器具的做法，除非用户明确说明具备相关材料或工具；“只有杯子”时只许倒入、加冰和用杯子轻轻搅拌。每款对象必须包含字段 name、englishName、tag、description、ingredients、steps、flavor、adjustment、isAlcoholFree、estimatedAbv、alcoholNote。ingredients 每项包含 name、amountMl（数字）、amount、optional；name 必须与可用材料清单中的某一名称完全一致。冰块 amountMl=0、amount=适量、optional=false。非冰液体 amount 必须和 amountMl 对应，使用“XX ml”而不是“适量”。步骤为3至4步，适合只有杯子，无需量杯或摇酒器。ABV 根据常见酒种浓度估算，冰块不计液体体积；无法确认则 estimatedAbv=null。顶层包含 recipes 数组（正好3项）和 safetyNote。';;
+  try{const available=matchedMaterials(input).map(x=>x.name);if(!available.length)return json({error:'暂未识别到清楚的材料名称，请输入具体饮品或食材。'},400,origin);const userPrompt='可用材料清单（唯一允许使用）：'+available.join('、')+'。\n用户原始描述：'+input+'\n风味偏好：'+mood+'\n请生成三款配方。';const result=await env.AI.run(TEXT_MODEL,{messages:[{role:'system',content:system},{role:'user',content:userPrompt}],response_format:{type:'json_object'},max_tokens:1800,temperature:.2});return json(validate(parseObject(extract(result)),input,mood),200,origin)}
+  catch(e){const message=String(e&&e.message||e||'unknown error'),bad=message.indexOf('unlisted ingredient')>=0||message.indexOf('unlisted ingredient in steps')>=0,alc=message.indexOf('alcohol_not_allowed')>=0,parse=message.indexOf('invalid_json')>=0||message.indexOf('not enough recipes')>=0||message.indexOf('incomplete recipe')>=0||message.indexOf('missing measure')>=0||message.indexOf('recipe has no liquid')>=0;return json({error:bad?'AI 配方或步骤混入未提及材料，已拦截。请写得更明确，或使用本地建议。':(alc?'检测到含酒精材料，无法把该配方标记为无酒精。请重试。':'AI 暂时没能可靠生成三款完整配方，请稍后重试或使用本地建议。'),detail:message.slice(0,180),errorKind:bad?'ingredient_validation':alc?'alcohol_validation':parse?'invalid_model_output':'model_or_validation_error'},(bad||alc)?422:502,origin)}
+ }
+ const name=String(body.name||'随调作品').trim().slice(0,50),description=String(body.description||'一杯即兴饮品').trim().slice(0,200),ingredients=String(body.ingredients||'').trim().slice(0,300),mood=String(body.mood||'清爽轻盈').trim().slice(0,40);if(!name||!description)return json({error:'缺少作品名称或风味描述。'},400,origin);
+ const prompt='Premium editorial beverage photography for lifestyle brand SipSpark (随调). Realistic single cocktail or mocktail in a clear glass with ice ONLY if in the supplied ingredients; natural window light, subtle real-life styling, warm paper cream #F2EEE6, muted pomelo coral #C98778, sage green #8B9582, charcoal accents. No text, letters, logos, watermark, hands, extra drinks, or ingredients not listed. Drink concept: '+name+'. Flavor: '+description+'. Ingredients available: '+ingredients+'. Mood: '+mood+'. Portrait 4:5 product photography, realistic glass refraction and condensation, refined natural shadows.';
+ try{const result=await env.AI.run(IMAGE_MODEL,{prompt:prompt,steps:4});const img=result&&(result.image||(result.result&&result.result.image));if(!img||typeof img!=='string')throw new Error('image missing');return json({image:img,mimeType:'image/jpeg',model:IMAGE_MODEL},200,origin)}
+ catch(e){return json({error:'图片生成服务暂时不可用，请重试；你仍可下载品牌风格分享卡。',detail:'image_model_unavailable'},502,origin)}
+}};
